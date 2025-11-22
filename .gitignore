@@ -1,0 +1,5 @@
+api_log.log
+db_logs.log
+.env
+venv
+__pycache__

@@ -11,7 +11,6 @@ load_dotenv()
 
 db_url = os.getenv("DATABASE_URL")
 db_pool = None
-db_url = os.getenv("DATABASE_URL")
 
 async def connect_to_db():
     global db_pool

@@ -1,5 +1,8 @@
 api_log.log
 db_logs.log
 .env
-venv
+project
 __pycache__
+Dockerfile.api
+Dockerfile.data
+docker-compose.yml

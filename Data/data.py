@@ -49,7 +49,7 @@ async def api_insertion(batch_size=200):
                     total_inserted += len(batch)
 
                 page_num += 1
-                await asyncio.sleep(5)
+                await asyncio.sleep(1)
 
         if insertion_size:
             await insert_data(db_pool, insertion_size, batch_size=batch_size)

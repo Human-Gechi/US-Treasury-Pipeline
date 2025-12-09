@@ -3,6 +3,4 @@ db_logs.log
 .env
 project
 __pycache__
-Dockerfile.api
-Dockerfile.data
 docker-compose.yml

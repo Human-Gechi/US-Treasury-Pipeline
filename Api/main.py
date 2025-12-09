@@ -1,7 +1,7 @@
 import os
 import sys
 from fastapi import FastAPI, Query, Depends, HTTPException, Security
-from fastapi.security import APIKeyQuery
+from fastapi.security import APIKeyHeader
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 API_KEY_NAME = "API_KEY"
-api_key_header = APIKeyQuery(name=API_KEY_NAME, auto_error=True)
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 API_KEY = os.getenv("API_KEY")
 
 async def validate_keys(api_key: str = Security(api_key_header)):

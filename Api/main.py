@@ -27,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-API_KEY_NAME = "Records_API_Key"
+API_KEY_NAME = "API_KEY"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 API_KEY = os.getenv("API_KEY")
 

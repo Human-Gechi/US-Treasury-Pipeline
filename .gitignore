@@ -4,3 +4,4 @@ db_logs.log
 project
 __pycache__
 docker-compose.yml
+streamlit_log.log

@@ -117,3 +117,30 @@ async def get_records_by_security_type(
     )
     results = {"Record" : records}
     return results
+
+@app.get("/records/by-security-type-and-date", dependencies=[Depends(validate_keys)])
+async def get_records_by_security_type_and_date(
+    db_connection = Depends(get_conn),
+    security_type: str = Query(..., description="Filter by security type description"),
+    year: Optional[int] = Query(None, description="Filter date by year (e.g YYYY)"),
+    month: Optional[int] = Query(None, description="Filter date by month (1-12)"),
+    day: Optional[int] = Query(None, description="Filter date by day (1-31)")
+):
+    records = await fetch_by_security_type(conn=db_connection, security_type=security_type)
+
+    if year or month or day:
+        filtered = []
+        for record in records:
+            record_date = record.get("record_date")
+            if record_date:
+                r_year = int(record_date[:4]) if len(record_date) >= 4 else None
+                r_month = int(record_date[5:7]) if len(record_date) >= 7 else None
+                r_day = int(record_date[8:10]) if len(record_date) >= 10 else None
+
+                if (year is None or r_year == year) and \
+                   (month is None or r_month == month) and \
+                   (day is None or r_day == day):
+                    filtered.append(record)
+        records = filtered
+
+    return {"Record": records}

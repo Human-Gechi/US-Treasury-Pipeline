@@ -7,130 +7,81 @@ from Logs.logs import streamlit_logger
 
 load_dotenv()
 
-BASE_API_URL = 'https://us-treasury-pipeline.onrender.com/'
-API_KEY = os.getenv('API_KEY')
-HEADERS = {
-    'API_KEY': API_KEY
-}
+BASE_API_URL = "https://us-treasury-pipeline.onrender.com"
+API_KEY = os.getenv("API_KEY")
+HEADERS = {"API_KEY": API_KEY}
 
-st.title("API Dashboard")
-endpoints = ["records","records/record_count", "records/latest", "records/types", "records/by-date", "records/by-security-type"]
-def fetch_api_data():
-    url = f"{BASE_API_URL}"
+st.title("Average US Securities Dashboard")
+
+def request_json(url, params=None, timeout=15):
     try:
-        response = requests.get(url, headers=HEADERS)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.HTTPError as e:
-        streamlit_logger.error(f"HTTP Error: {e}")
-        st.error(f"Authentication Error accessing {url}: {e}")
-        return None
+        resp = requests.get(url, headers=HEADERS, params=params, timeout=timeout)
     except requests.exceptions.RequestException as e:
-        streamlit_logger.error(f"A Network Error occured: {e}")
-        st.error(f"Network Error: {e}")
+        streamlit_logger.error(f"Request failed: {e}", exc_info=True)
+        st.error(f"Network error calling API: {e}")
         return None
+    if resp.status_code >= 500:
+        streamlit_logger.error(f"Server error {resp.status_code} for {url}: {resp.text}")
+        st.error(f"Server error {resp.status_code}. Check backend logs.")
+        return None
+    if resp.status_code >= 400:
+        streamlit_logger.error(f"API returned {resp.status_code} for {url}: {resp.text}")
+        st.error(f"API error {resp.status_code}: {resp.text}")
+        return None
+    try:
+        return resp.json()
     except Exception as e:
-        streamlit_logger.error (f"An unexpected error occurred: {e}")
+        streamlit_logger.error(f"Invalid JSON from {url}: {e}; body={resp.text}", exc_info=True)
+        st.error("Invalid JSON response from API.")
+        return None
+
+@st.cache_data
+def fetch_security_types():
+    payload = request_json(f"{BASE_API_URL}/records/types")
+    if not payload:
+        return []
+    return payload.get("Security_type_desc", []) if isinstance(payload, dict) else []
+
+@st.cache_data
+def fetch_records_for_type(security_type):
+    payload = request_json(f"{BASE_API_URL}/records/by-security-type", params={"security_type": security_type})
+    if not payload:
+        return []
+    return payload.get("Record", payload) if isinstance(payload, dict) else payload
+
+@st.cache_data
+def get_latest_records():
+    payload = request_json(f"{BASE_API_URL}/records/latest")
+    if payload is None:
+        return pd.DataFrame()
+    return pd.DataFrame(payload)
 
 def total_count():
-    data = fetch_api_data()
-    if data:
-        endpoint_url = f"{BASE_API_URL}/records/record_count"
-        try:
-            response = requests.get(endpoint_url, headers=HEADERS)
-            response.raise_for_status()
-            endpoint_data = response.json()
-            total_records = endpoint_data.get("Record_count", {}).get("total_records")
-            if total_records is not None:
-                st.metric(label="Record Count", value=total_records)
-                streamlit_logger.info("Displayed record count card successfully.")
-        except requests.exceptions.HTTPError as e:
-            streamlit_logger.error(f"HTTP Error: {e}")
-            st.error(f"Authentication Error accessing {endpoint_url}: {e}")
-        except requests.exceptions.RequestException as e:
-            streamlit_logger.error(f"A Network Error occured: {e}")
-            st.error(f"Network Error: {e}")
-        except Exception as e:
-            streamlit_logger.error(f"An unexpected error occurred: {e}")
+    payload = request_json(f"{BASE_API_URL}/records/record_count")
+    if not payload:
+        return
+    total_records = payload.get("Record_count", {}).get("total_records")
+    if total_records is not None:
+        st.metric(label="Record Count", value=total_records)
+        streamlit_logger.info("Displayed record count card successfully.")
 
 def display_latest():
-    if st.session_state.get("latest_shown"):
-        return
-    data = fetch_api_data()
-    if data:
-        endpoint_url = f"{BASE_API_URL}/records/latest"
-        try:
-            response = requests.get(endpoint_url, headers=HEADERS)
-            response.raise_for_status()
-            endpoint_data = response.json()
-
-            df = pd.DataFrame(endpoint_data)
-
-            st.subheader("Latest Records")
-            if df.empty:
-                st.write("No latest records found.")
-            else:
-                st.markdown("""
-                        <style>
-                        .dataframe {
-                            max-height: 50px; /* Set a fixed height */
-                            overflow-y: auto; /* Enable vertical scrolling */
-                        }
-                        </style>
-                        """, unsafe_allow_html=True)
-            st.dataframe(df, width=325, height=250)
-            st.session_state["latest_shown"] = True
-
-        except requests.exceptions.HTTPError as e:
-            streamlit_logger.error(f"HTTP Error: {e}")
-            st.error(f"Authentication Error accessing {endpoint_url}: {e}")
-        except requests.exceptions.RequestException as e:
-            streamlit_logger.error(f"A Network Error occured: {e}")
-            st.error(f"Network Error: {e}")
-        except Exception as e:
-            streamlit_logger.error(f"An unexpected error occured: {e}")
-            st.error(f"Error displaying latest records: {e}")
+    df = get_latest_records()
+    st.subheader("Latest Record")
+    if df.empty:
+        st.write("No latest records found.")
+    else:
+        st.dataframe(df, width=700, height=245)
 
 def card_display():
-    try:
-        resp = requests.get(f"{BASE_API_URL}records/types", headers=HEADERS, timeout=10)
-        resp.raise_for_status()
-        payload = resp.json()
-        types = payload.get("Security_type_desc", []) if isinstance(payload, dict) else []
-    except Exception as e:
-        streamlit_logger.error(f"Failed to load security types: {e}")
-        st.error("Could not load security types.")
-        return
-
+    types = fetch_security_types()
     if not types:
         st.info("No security types available.")
         return
-
     counts = {}
     for t in types:
-        try:
-            r = requests.get(
-                f"{BASE_API_URL}records/by-security-type/",
-                headers=HEADERS,
-                params={"security_type": t},
-                timeout=10,
-            )
-            r.raise_for_status()
-            p = r.json()
-            recs = p.get("Record", p) if isinstance(p, dict) else p
-            counts[t] = len(recs) if isinstance(recs, list) else 0
-        except Exception as e:
-            streamlit_logger.error(f"Error fetching count for {t}: {e}")
-            counts[t] = 0
-        except requests.exceptions.HTTPError as e:
-            streamlit_logger.error(f"HTTP Error: {e}")
-            st.error(f"Authentication Error accessing {r}: {e}")
-            return None
-        except requests.exceptions.RequestException as e:
-            streamlit_logger.error(f"A Network Error occured: {e}")
-            st.error(f"Network Error: {e}")
-            return None
-
+        recs = fetch_records_for_type(t) or []
+        counts[t] = len(recs) if isinstance(recs, list) else 0
     per_row = 3
     rows = (len(types) + per_row - 1) // per_row
     idx = 0
@@ -144,101 +95,74 @@ def card_display():
                 st.metric(label=t, value=counts.get(t, 0))
             idx += 1
 
-
-def security_types():
-    data = fetch_api_data()
-    if not data:
-        return
-
-    resp = requests.get(
-        f"{BASE_API_URL}records/by-security-type/",
-            headers=HEADERS,
-            timeout=10,
-        )
-    resp.raise_for_status()
-    payload = resp.json()
-    endpoints = payload.get("Security_type_desc")
-    for e in endpoints:
-        print(e)
-
-
 def line_graph_filtered():
     st.subheader("Average Securities Trends")
-
-    try:
-        resp = requests.get(f"{BASE_API_URL}records/by-security-type-and-date", headers=HEADERS, timeout=10)
-        resp.raise_for_status()
-        payload = resp.json()
-        types = payload.get("Security_type_desc", []) if isinstance(payload, dict) else []
-    except Exception as e:
-        streamlit_logger.error(f"Failed to load security types: {e}")
-        st.error("Could not load security types.")
-        return
-
+    types = fetch_security_types()
     if not types:
         st.info("No security types available.")
         return
-
-    selected_type = st.selectbox("Select Security Type", options=types)
-
+    selected_types = st.multiselect("Select Security Types to Compare", options=types, default=types[:1])
+    if not selected_types:
+        st.info("Select at least one security type.")
+        return
     col1, col2, col3 = st.columns(3)
     with col1:
-        year = st.number_input("Year (optional)", min_value=2001, max_value=2100, value=None)
+        year_opt = st.selectbox("Year (optional)", options=["All"] + list(range(2001, 2100)), index=0)
     with col2:
-        month = st.number_input("Month (optional)", min_value=1, max_value=12, value=None)
+        month_opt = st.selectbox("Month (optional)", options=["All"] + list(range(1, 13)), index=0)
     with col3:
-        day = st.number_input("Day (optional)", min_value=1, max_value=31, value=None)
+        day_opt = st.selectbox("Day (optional)", options=["All"] + list(range(1, 32)), index=0)
 
-    if st.button("Generate Graph"):
-        try:
-            params = {"security_type": selected_type}
-            if year:
-                params["year"] = year
-            if month:
-                params["month"] = month
-            if day:
-                params["day"] = day
+    gen_col, clear_col = st.columns([1,1])
+    generate = gen_col.button("Generate Graph", key="gen_graph")
+    clear = clear_col.button("Clear Graph", key="clear_graph")
 
-            resp = requests.get(
-                f"{BASE_API_URL}records/by-security-type-and-date",
-                headers=HEADERS,
-                params=params,
-                timeout=10
-            )
-            resp.raise_for_status()
-            payload = resp.json()
-            records = payload.get("Record", [])
+    if generate:
+        all_data = []
+        for security_type in selected_types:
 
-            if records:
-                df = pd.DataFrame(records)
+            records = fetch_records_for_type(security_type) or []
+            for rec in records:
+                rec["security_type"] = security_type
+                all_data.append(rec)
 
+        if not all_data:
+            st.info("No records found for selected types.")
+            return
 
-                if "record_date" in df.columns and "avg_interest_rate_amt" in df.columns:
-                    try:
-                        df["record_date"] = pd.to_datetime(df["record_date"], errors="coerce")
-                        df["avg_interest_rate_amt"] = pd.to_numeric(df["avg_interest_rate_amt"], errors="coerce")
-                    except Exception:
-                        pass
+        df = pd.DataFrame(all_data)
+        if "record_date" not in df.columns or "avg_interest_rate_amt" not in df.columns:
+            st.dataframe(df)
+            return
 
-                    df = df.dropna(subset=["record_date", "avg_interest_rate_amt"])
-                    df_sorted = df.sort_values(by="record_date")
+        df["record_date"] = pd.to_datetime(df["record_date"], errors="coerce")
+        df["avg_interest_rate_amt"] = pd.to_numeric(df["avg_interest_rate_amt"], errors="coerce")
+        df = df.dropna(subset=["record_date", "avg_interest_rate_amt"])
 
-                    st.line_chart(df_sorted.set_index("record_date")["avg_interest_rate_amt"])
-                else:
-                    st.dataframe(df)
-            else:
-                st.info("No records found for the selected filters.")
-        except Exception as e:
-            streamlit_logger.error(f"Failed to generate graph: {e}")
-            st.error(f"Error: {e}")
-        except requests.exceptions.HTTPError as e:
-            streamlit_logger.error(f"HTTP Error: {e}")
-            st.error(f"Authentication Error accessing {resp}: {e}")
-            return None
-        except requests.exceptions.RequestException as e:
-            streamlit_logger.error(f"A Network Error occured: {e}")
-            st.error(f"Network Error: {e}")
-            return None
+        if year_opt != "All":
+                df = df[df["record_date"].dt.year == int(year_opt)]
+        if month_opt != "All":
+                df = df[df["record_date"].dt.month == int(month_opt)]
+        if day_opt != "All":
+                df = df[df["record_date"].dt.day == int(day_opt)]
+        if df.empty:
+            st.info("No data to plot.")
+            return
+
+        df_pivot = df.pivot_table(
+            index="record_date",
+            columns="security_type",
+            values="avg_interest_rate_amt",
+            aggfunc="mean"
+        ).sort_index()
+        st.session_state["line_chart_df"] = df_pivot
+
+    if clear and "line_chart_df" in st.session_state:
+        del st.session_state["line_chart_df"]
+
+    if st.session_state.get("line_chart_df") is not None:
+        st.subheader("Persisted Chart")
+        st.line_chart(st.session_state["line_chart_df"], width=700, height=300, use_container_width=False)
 
 def render_dashboard():
     col1, col2 = st.columns([1, 3])
@@ -246,9 +170,6 @@ def render_dashboard():
         total_count()
     with col2:
         card_display()
-    display_latest()
     line_graph_filtered()
-
+    display_latest()
 render_dashboard()
-
-

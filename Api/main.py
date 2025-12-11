@@ -133,11 +133,10 @@ async def get_records_by_security_type_and_date(
         for record in records:
             record_date = record.get("record_date")
             if record_date:
-                r_year = int(record_date[:4]) if len(record_date) >= 4 else None
-                r_month = int(record_date[5:7]) if len(record_date) >= 7 else None
-                r_day = int(record_date[8:10]) if len(record_date) >= 10 else None
-
-                if (year is None or r_year == year) and \
+               r_year = record_date.year
+               r_month = record_date.month
+               r_day = record_date.day
+               if (year is None or r_year == year) and \
                    (month is None or r_month == month) and \
                    (day is None or r_day == day):
                     filtered.append(record)

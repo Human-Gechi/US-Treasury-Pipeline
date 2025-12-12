@@ -74,7 +74,6 @@ async def total_records(
 ):
     total_count = await fetch_total_records(conn=db_connection)
     result = {"Record_count" : total_count}
-
     return result
 
 @app.get("/records/latest", dependencies=[Depends(validate_keys)])

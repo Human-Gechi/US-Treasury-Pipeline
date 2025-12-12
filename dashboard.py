@@ -132,7 +132,7 @@ def line_graph_filtered():
             return
 
         df["record_date"] = pd.to_datetime(df["record_date"], errors="coerce")
-        df["avg_interest_rate_amt"] = pd.to_numeric(df["avg_interest_rate_amt"], errors="coerce")
+        df["avg_interest_rate_amt"] = pd.to_numeric(df["avg_interest_rate_amt"]*100, errors="coerce")
         df = df.dropna(subset=["record_date", "avg_interest_rate_amt"])
 
         if year_opt != "All":
@@ -153,7 +153,7 @@ def line_graph_filtered():
         ).sort_index()
         st.session_state["line_chart_df"] = df_pivot
 
-    
+
     if st.session_state.get("line_chart_df") is not None:
         st.subheader("Persisted Chart")
         st.line_chart(st.session_state["line_chart_df"], width=700, height=300, use_container_width=False)

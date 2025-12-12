@@ -5,3 +5,4 @@ project
 __pycache__
 docker-compose.yml
 streamlit_log.log
+secrets.toml

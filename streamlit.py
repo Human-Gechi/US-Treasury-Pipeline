@@ -8,7 +8,7 @@ from Logs.logs import streamlit_logger
 load_dotenv()
 
 BASE_API_URL = "https://us-treasury-pipeline.onrender.com"
-API_KEY = os.getenv("API_KEY")
+API_KEY = st.secrets["API_KEY"]
 HEADERS = {"API_KEY": API_KEY}
 
 st.title("Average US Securities Dashboard")

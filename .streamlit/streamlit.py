@@ -113,11 +113,7 @@ def line_graph_filtered():
     with col3:
         day_opt = st.selectbox("Day (optional)", options=["All"] + list(range(1, 32)), index=0)
 
-    gen_col, clear_col = st.columns([1,1])
-    generate = gen_col.button("Generate Graph", key="gen_graph")
-    clear = clear_col.button("Clear Graph", key="clear_graph")
 
-    if generate:
         all_data = []
         for security_type in selected_types:
 
@@ -157,9 +153,7 @@ def line_graph_filtered():
         ).sort_index()
         st.session_state["line_chart_df"] = df_pivot
 
-    if clear and "line_chart_df" in st.session_state:
-        del st.session_state["line_chart_df"]
-
+    
     if st.session_state.get("line_chart_df") is not None:
         st.subheader("Persisted Chart")
         st.line_chart(st.session_state["line_chart_df"], width=700, height=300, use_container_width=False)

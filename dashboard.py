@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 import pandas as pd
-import altair as alt
 from dotenv import load_dotenv
 from Logs.logs import streamlit_logger
 
@@ -156,21 +155,7 @@ def line_graph_filtered():
 
     if st.session_state.get("line_chart_df") is not None:
         st.subheader("Persisted Chart")
-        chart = (
-            alt.Chart(df)
-            .mark_line()
-            .encode(
-                x=alt.X('date', title='Month'),
-                y=alt.Y('value', title='Average Interest Rate')
-            )
-            .properties(
-                width=600,
-                height=400,
-                title="Interest Rate Over Time"
-            )
-        )
-
-        st.altair_chart(st.session_state["line_chart_df"], chart, use_container_width=False)
+        st.line_chart(st.session_state["line_chart_df"], width=700, height=300, use_container_width=False)
 
 def render_dashboard():
     col1, col2 = st.columns([1, 3])

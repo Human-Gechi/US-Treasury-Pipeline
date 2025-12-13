@@ -6,3 +6,4 @@ Logs/__pycache__
 .git
 .env
 project
+.streamlit

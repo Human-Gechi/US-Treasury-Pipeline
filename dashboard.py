@@ -12,7 +12,7 @@ HEADERS = {"API_KEY": API_KEY}
 
 st.title("Average US Securities Dashboard")
 
-def request_json(url, params=None, timeout=15):
+def request_json(url, params=None, timeout=50):
     try:
         resp = requests.get(url, headers=HEADERS, params=params, timeout=timeout)
     except requests.exceptions.RequestException as e:

@@ -39,12 +39,11 @@ async def validate_keys(api_key: str = Security(api_key_header)):
         raise HTTPException(status_code=401, detail="Invalid API Key")
     return api_key
 
-
-@app.get("/crash")
-async def trigger_crash():
+#For testing if the monitor.py works as expected
+#@app.get("/crash")
+#async def trigger_crash():
     # This sends a 'Kill' signal to the process running the API
-    os.kill(os.getpid(), signal.SIGTERM)
-
+    #os.kill(os.getpid(), signal.SIGTERM)
 
 @app.on_event("startup")
 async def startup_event():

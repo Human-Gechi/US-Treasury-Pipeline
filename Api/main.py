@@ -52,6 +52,10 @@ async def shutdown_event():
 async def root():
     return {"message": "Average Rate US Treasury API is running"}
 
+@app.get("/health")
+async def health_check():
+    return{"status":"healthy"}
+
 @app.get("/records", dependencies=[Depends(validate_keys)])
 async def all_records(
     db_connection = Depends(get_conn),

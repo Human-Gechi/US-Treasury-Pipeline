@@ -80,6 +80,8 @@ US-Treasury-Pipeline/
 - Persistent storage of raw and processed datasets into the database
 - Batch data uploads(200 records per insertion) for 4861 records
 - Organized by data type and time period
+
+### STREAMLIT DASHBOARD URL : https://us-treasury-pipeline-a4wrb5zodssutnnatcckcs.streamlit.app/
 ---
 
 ## 🚀 Getting Started
@@ -108,7 +110,7 @@ US-Treasury-Pipeline/
    ```bash
    # API Configuration
    API_KEY= ***
-   
+
    # DATABASE CREDENTIALS
    DB_HOST = *******
    DB_USER = *****
@@ -267,7 +269,7 @@ Contributions are welcome! Please follow these guidelines:
 
 ## 📈 Performance Metrics
 
-- **API Response Time:** 200 - 500 ms 
+- **API Response Time:** 200 - 500 ms
 - **Dashboard Load Time:** <= 50 seconds
 - **Data Refresh Frequency:** Every month
 - **Data Accuracy:** 95%

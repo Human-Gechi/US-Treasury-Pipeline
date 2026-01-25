@@ -155,7 +155,6 @@ The Streamlit dashboard automatically connects to the Render-hosted API in produ
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/health` | Health check endpoint |
 | `GET` | `/records` | Fetch First 50 Treasury data for avergae_securities|
 | `GET` | `/records/record_count` | Fetch total records at the endpoint|
 | `GET` | `/records/latest` | Fetch latest record |
@@ -283,7 +282,7 @@ This project is open source and available under the MIT License.
 
 Building scalable data pipelines and analytics systems.
 
-- **Focus:** Data Engineering,Backend development,Anaytics, ML
+- **Focus:** Data Engineering,Anaytics, ML
 - **LinkedIn:** [LinkedIn](https://shorturl.at/PwBSf)
 - **GitHub:** [@Human-Gechi](https://github.com/Human-Gechi)
 

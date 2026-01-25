@@ -42,6 +42,9 @@ US-Treasury-Pipeline/
 |   └── models.py           # Data models for API endpoint
 ├── Logs/                   # Pipeline execution logs
 │   └── [Execution records and error tracking]
+├── monitor/
+|   └── monitor_db.py       # Make connection to database, create table for monitoring
+|   └── monitor.py          # Make a request to API endpoint, check fir status and append staus to db
 ├── dashboard.py            # Streamlit frontend application
 ├── requirements.txt        # Python dependencies
 ├── Dockerfile              # Container configuration
@@ -155,6 +158,7 @@ The Streamlit dashboard automatically connects to the Render-hosted API in produ
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| `GET` | `/records` | Health check |
 | `GET` | `/records` | Fetch First 50 Treasury data for avergae_securities|
 | `GET` | `/records/record_count` | Fetch total records at the endpoint|
 | `GET` | `/records/latest` | Fetch latest record |

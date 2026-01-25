@@ -5,7 +5,7 @@ from fastapi.security import APIKeyHeader
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-
+import signal
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
@@ -38,6 +38,12 @@ async def validate_keys(api_key: str = Security(api_key_header)):
     if expected_api_key is None or api_key != expected_api_key:
         raise HTTPException(status_code=401, detail="Invalid API Key")
     return api_key
+
+
+@app.get("/crash")
+async def trigger_crash():
+    # This sends a 'Kill' signal to the process running the API
+    os.kill(os.getpid(), signal.SIGTERM)
 
 
 @app.on_event("startup")

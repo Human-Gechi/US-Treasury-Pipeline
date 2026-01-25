@@ -1,9 +1,10 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
-
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv()
-from logs import db_logger
+from Logs.logs import db_logger
 
 def make_connection():
     conn = None  # Initialize the variable
@@ -27,18 +28,17 @@ def create_tables():
     cursor = conn.cursor()
     try:
         create_table_query = """
-    CREATE SCHEMA IF NOT EXISTS monitoring;
-
-    CREATE TABLE IF NOT EXISTS monitoring.health_checks (
+    CREATE TABLE IF NOT EXISTS API_health_checks (
         id SERIAL PRIMARY KEY,
         checked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         status_code INTEGER NOT NULL,
+        status_message TEXT,
         latency_ms FLOAT NOT NULL,
         is_healthy BOOLEAN NOT NULL
     );
 
     CREATE INDEX IF NOT EXISTS idx_checked_at 
-    ON monitoring.health_checks (checked_at);
+    ON API_health_checks (checked_at);
     """
     except Exception as e:
         db_logger.info("Table and schema were not created")

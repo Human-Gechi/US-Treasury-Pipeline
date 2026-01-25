@@ -234,7 +234,7 @@ The pipeline processes Treasury metrics including:
 
 1. **Create Render Service**
    - Go to https://dashboard.render.com
-   - Click "New" → "Web Service"
+   - Click "New" -> "Web Service"
    - Connect GitHub repository
    - Set Build Command: `pip install -r requirements.txt`
    - Set Start Command: `uvicorn Api.main:app --host 0.0.0.0 --port $PORT`
@@ -263,7 +263,7 @@ Contributions are welcome! Please follow these guidelines:
 
 ## 📈 Performance Metrics
 
-- **API Response Time:** <= 50 seconds
+- **API Response Time:** 200 - 500 ms 
 - **Dashboard Load Time:** <= 50 seconds
 - **Data Refresh Frequency:** Every month
 - **Data Accuracy:** 95%

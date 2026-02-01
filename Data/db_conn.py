@@ -27,7 +27,6 @@ async def create_tables():
 
         table_query = """
             CREATE TABLE IF NOT EXISTS avg_us_securities_2001_present (
-                record_id SERIAL PRIMARY KEY,
                 record_date DATE,
                 record_year INT GENERATED ALWAYS AS (COALESCE(EXTRACT(YEAR FROM record_date)::INT, 0)) STORED,
                 security_type_desc VARCHAR(100) CHECK(security_type_desc IN('Marketable','Non-marketable','Interest-bearing Debt')),
@@ -41,34 +40,42 @@ async def create_tables():
     except Exception as e:
         db_logger.info(f"Table not created : {e}")
 
-async def insert_data(conn, rows, batch_size=200):
-    global db_pool
+async def insert_data(rows, batch_size=1000):
+    global db_pooL
     if db_pool is None:
         raise Exception("DB pool not initialized. Call connect_to_db() first.")
-    total_inserted = 0
-    try:
-        insertion = """
-            INSERT INTO avg_us_securities_2001_present(
-                record_date, 
-                security_type_desc, 
-                security_desc, 
-                avg_interest_rate_amt
-            ) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING
-        """
 
+    if not rows:
+        db_logger.warning("No rows to insert - empty list")
+        return 0
+
+    total_inserted = 0
+
+    insertion = """
+        INSERT INTO avg_us_securities_2001_present(
+            record_date,
+            security_type_desc,
+            security_desc,
+            avg_interest_rate_amt
+        ) VALUES ($1, $2, $3, $4)
+        ON CONFLICT(record_date, security_type_desc, security_desc) DO NOTHING
+    """
+
+    try:
         for i in range(0, len(rows), batch_size):
             batch = rows[i : i + batch_size]
 
-            async with db_pool.acquire() as conn:
-                for row in batch:
-                    await conn.execute(insertion, *row)
+            async with db_pool.acquire() as connection:
+                db_logger.info(f"Connection acquired")
+                await connection.executemany(insertion, batch)
                 total_inserted += len(batch)
-
         return total_inserted
 
     except Exception as e:
         db_logger.error(f"DB insertion failed: {e}")
+        db_logger.error(f"Exception type: {type(e)}")
 
+        return total_inserted
 
 async def main():
     await connect_to_db()

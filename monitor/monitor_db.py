@@ -23,10 +23,12 @@ def make_connection():
 
     return conn
 
-def create_tables():
-    conn = make_connection()
-    cursor = conn.cursor()
+def create_tables(conn):
+    if not conn:
+        return "No connection available"
+
     try:
+        cursor = conn.cursor()
         create_table_query = """
     CREATE TABLE IF NOT EXISTS API_health_checks (
         id SERIAL PRIMARY KEY,
@@ -45,3 +47,6 @@ def create_tables():
     else:
         db_logger.info("Table and schema created successfully")
     cursor.execute(create_table_query)
+    conn.commit()
+    cursor.close()
+

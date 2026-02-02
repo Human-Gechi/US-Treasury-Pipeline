@@ -1,7 +1,7 @@
 api_log.log
 db_logs.log
 .env
-project
+securities
 __pycache__
 docker-compose.yml
 streamlit_log.log

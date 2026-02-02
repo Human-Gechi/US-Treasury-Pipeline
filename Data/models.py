@@ -43,7 +43,6 @@ async def fetch_all_records(conn, limit: int, offset: int) ->dict:
     rows = await conn.fetch("""
         SELECT *
         FROM avg_us_securities_2001_present
-        ORDER BY record_id ASC
         LIMIT $1 OFFSET $2 
         
     """, limit, offset)
@@ -55,7 +54,7 @@ async def fetch_latest_record(conn) -> list[dict]:
     rows = await conn.fetchrow("""
         SELECT *
         FROM avg_us_securities_2001_present
-        ORDER BY record_id DESC
+        ORDER BY order_date DESC
         LIMIT 1
     """)
 
@@ -78,7 +77,6 @@ async def fetch_by_security_type(conn, security_type: str) -> list[dict]:
         SELECT * 
         FROM avg_us_securities_2001_present 
         WHERE security_type_desc = $1
-        ORDER BY record_id ASC
     """, security_type)
 
     return [dict(row) for row in rows]

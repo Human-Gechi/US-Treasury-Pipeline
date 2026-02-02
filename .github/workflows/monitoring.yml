@@ -2,7 +2,7 @@ name: Api Monitoring
 
 on:
   schedule:
-    - cron: '0 1,2,3,4,5,6,7 * * *'
+    - cron: '10 5 * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,3 +20,20 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Api monitoring
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          python monitor/monitor.py
+    
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-logs
+          path: monitoring.log
+
+
+
+

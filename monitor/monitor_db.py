@@ -1,35 +1,22 @@
 import os
-import psycopg2
+import asyncpg
 from dotenv import load_dotenv
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv()
 from Logs.logs import db_logger
 
-def make_connection():
-    conn = None  # Initialize the variable
-    try:
-        conn = psycopg2.connect(
-            host=os.getenv("DB_HOST"),
-            database=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            port=os.getenv("DB_PORT")
-        )
-    except Exception as e:
-        db_logger.info(f"An error occurred: {e}")
-    else:
-        db_logger.info("Connection successful")
+db_url = os.getenv("DATABASE_URL")
+db_pool = None
 
-    return conn
 
-def create_tables(conn):
-    if not conn:
-        return "No connection available"
+async def create_tables(conn):
+    global db_pool
+    if db_pool is None:
+        db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+        db_logger.info("Database pool created for table creation.")
 
-    try:
-        cursor = conn.cursor()
-        create_table_query = """
+    create_table_query = """
     CREATE TABLE IF NOT EXISTS API_health_checks (
         id SERIAL PRIMARY KEY,
         checked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -42,11 +29,12 @@ def create_tables(conn):
     CREATE INDEX IF NOT EXISTS idx_checked_at 
     ON API_health_checks (checked_at);
     """
+    try:
+        async with db_pool.acquire() as conn:
+            await conn.execute(create_table_query)
     except Exception as e:
         db_logger.info("Table and schema were not created")
     else:
         db_logger.info("Table and schema created successfully")
-    cursor.execute(create_table_query)
-    conn.commit()
-    cursor.close()
+
 

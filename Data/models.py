@@ -54,7 +54,7 @@ async def fetch_latest_record(conn) -> list[dict]:
     rows = await conn.fetchrow("""
         SELECT *
         FROM avg_us_securities_2001_present
-        ORDER BY order_date DESC
+        ORDER BY record_date DESC
         LIMIT 1
     """)
 

@@ -45,5 +45,3 @@ def create_tables():
     else:
         db_logger.info("Table and schema created successfully")
     cursor.execute(create_table_query)
-
-create_tables()

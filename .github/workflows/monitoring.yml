@@ -2,7 +2,7 @@ name: Api Monitoring
 
 on:
   schedule:
-    - cron: '10 5 * * *'
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:

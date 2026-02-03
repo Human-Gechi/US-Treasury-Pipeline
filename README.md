@@ -81,7 +81,7 @@ US-Treasury-Pipeline/
 - Batch data uploads(200 records per insertion) for 4861 records
 - Organized by data type and time period
 
-### STREAMLIT DASHBOARD URL : https://us-treasury-pipeline-a4wrb5zodssutnnatcckcs.streamlit.app/
+### STREAMLIT DASHBOARD URL :https://us-treasury-pipeline-rijzjnbzowvw8ydra7f5uq.streamlit.app/
 ---
 
 ## 🚀 Getting Started

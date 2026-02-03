@@ -154,7 +154,7 @@ def line_graph_filtered(): #Line grapgh for the security types
 
 
     if st.session_state.get("line_chart_df") is not None:
-        st.subheader("Persisted Chart")
+        st.subheader("% Securities Average Interest Rate Over Time") #Subheader for line graph
         st.line_chart(st.session_state["line_chart_df"], width=700, height=300, use_container_width=False) #Line graph
 
 #Function for dashboard

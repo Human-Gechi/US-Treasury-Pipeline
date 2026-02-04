@@ -3,8 +3,8 @@ import asyncio
 import httpx
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from db_conn import insert_data,connect_to_db #Function to insert data
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from .db_conn import insert_data #Function to insert data
 from Logs.logs import api_logger
 from datetime import datetime
 url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates" #API url
@@ -37,7 +37,6 @@ async def api_insertion(batch_size=1000):
                     raw_value = item['avg_interest_rate_amt'] #Get the raw value for avg_interest_rate_amt
                     clean_value = float(raw_value.replace("%","")) / 100 if raw_value and raw_value.lower() != "null" else 0 #Some data cleaning removing % sign and converting to decimal
                     record_date = datetime.strptime(item["record_date"], "%Y-%m-%d").date() #record date conversion
-                    key = (record_date, item['security_type_desc'], item['security_desc']) #Unique key for each record
 
                     records.append((record_date, item['security_type_desc'], item['security_desc'], clean_value)) #Append records
 

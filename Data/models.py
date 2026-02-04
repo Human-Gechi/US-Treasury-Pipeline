@@ -3,7 +3,7 @@ import asyncpg
 import os
 import sys
 from dotenv import load_dotenv
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Logs.logs import db_logger
 load_dotenv()
 db_url = os.getenv("DATABASE_URL") #Database url

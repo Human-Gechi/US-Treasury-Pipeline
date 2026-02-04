@@ -70,7 +70,7 @@ def display_latest(): #Function to display latest record
     if df.empty: #If datafram is empty;
         st.write("No latest records found.") #Display this message
     else:
-        st.dataframe(df, width=700, height=215) #Display the dataframe with width and height
+        st.dataframe(df, width=700, height=220) #Display the dataframe with width and height
 
 def card_display():#Display cards for each security type with count of records
     types = fetch_security_types() #Fetch function making request to get security types

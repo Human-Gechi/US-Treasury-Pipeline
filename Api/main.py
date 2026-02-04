@@ -6,7 +6,7 @@ from fastapi.security import APIKeyHeader
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Data.models import * #Importing necessary database functions from Data\models.py
 load_dotenv()
 

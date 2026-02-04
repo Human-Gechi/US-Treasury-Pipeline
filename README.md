@@ -46,6 +46,7 @@ US-Treasury-Pipeline/
 |   └── monitor_db.py       # Make connection to database, create table for monitoring
 |   └── monitor.py          # Make a request to API endpoint, check fir status and append staus to db
 ├── dashboard.py            # Streamlit frontend application
+├── dag.py                  # Dag file
 ├── requirements.txt        # Python dependencies
 ├── Dockerfile              # Container configuration
 ├── .gitignore              # Git ignore rules
@@ -112,10 +113,6 @@ US-Treasury-Pipeline/
    API_KEY= ***
 
    # DATABASE CREDENTIALS
-   DB_HOST = *******
-   DB_USER = *****
-   DB_PORT = ***
-   DB_PASSWORD = ****
    DATABASE_URL = *****
    ```
 
@@ -160,7 +157,7 @@ The Streamlit dashboard automatically connects to the Render-hosted API in produ
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/records` | Health check |
+| `GET` | `/records/health` | Health check |
 | `GET` | `/records` | Fetch First 50 Treasury data for avergae_securities|
 | `GET` | `/records/record_count` | Fetch total records at the endpoint|
 | `GET` | `/records/latest` | Fetch latest record |
@@ -177,11 +174,11 @@ The Streamlit dashboard automatically connects to the Render-hosted API in produ
 4. **Storage** -> Processed data persisted to database
 5. **API Exposure** -> FastAPI serves data via REST endpoints
 6. **Visualization** -> Streamlit dashboard consumes API data and displays insights
+7. **Data Ochestration** -> Airflow: Fetches data monthly from the endpoint
 
 ---
 
 ## 🔌 Dashboard Features
-
 - **Real-time Metrics Dashboard** -> Current average securities yields and rates
 - **Historical Trend Analysis**  -> Graph depicting securities trends overtime
 - **Record count** -> Total count, individual security type count
@@ -222,8 +219,6 @@ docker-compose up -d
 ## 📊 Data Schema
 
 The pipeline processes Treasury metrics including:
-
-- record_id
 - record_date
 - record_year (Generated at runtime from record_date)
 - security_type_desc (Marketable, Non-Marketable, Interest-bearin debt)

@@ -4,7 +4,7 @@ import os
 import pendulum
 import datetime
 from airflow.decorators import dag, task #dag and task decorators
-sys.path.append(os.path.dirname(os.path.abspath(__file__))) #Appending file parts to prevent function import errors
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))#Appending file parts to prevent function import errors
 #Default dags argument
 default_args = {
     'owner': 'Human-Gechi',
@@ -25,8 +25,8 @@ def securities_rate():
     @task(task_id="run_data_task") #Defining the task
     def run_data(): #function for the task
         import asyncio #Inner package imports
-        from Data.data import api_insertion, connect_to_db
-
+        from average_securities_rate.Data.data import api_insertion
+        from average_securities_rate.Data.db_conn import connect_to_db
         async def main(): #Run the functions
             await connect_to_db()
             await api_insertion()

@@ -128,15 +128,13 @@ async def insert_data(rows, batch_size=1000):
                                 )
                                 .returning(Records.record_id)
                             )
+                            result = await connection.execute(stmt)
+                            inserted_row = result.fetchone()
 
-                        result = await connection.execute(stmt)
-                        inserted_row = result.fetchone()
-
-                        if inserted_row:
-                            total_inserted += 1
-                        else:
-                            total_skipped += 1
-
+                            if inserted_row:
+                                total_inserted += 1
+                            else:
+                                total_skipped += 1
                         db_logger.info(
                             f"Batch: {total_inserted} inserted, {total_skipped} skipped"
                         )

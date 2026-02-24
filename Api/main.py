@@ -55,7 +55,7 @@ async def validate_key(api_key: str = Security(api_key_header)):
         expected_api_key is None or api_key != expected_api_key
     ):  # If API key is invalid, raise HTTPException
         raise HTTPException(status_code=401, detail="Invalid API Key")  # Error messgae
-    return api_key
+    return None
 
 
 @asynccontextmanager

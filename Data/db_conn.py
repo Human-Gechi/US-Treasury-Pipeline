@@ -43,7 +43,7 @@ async def connect_to_db():  # Function to create a database pool
 
 
 async def close_db_pool():  # Function to close the database pool
-    """Close the connection to databse pool.
+    """Close the connection to database pool.
 
     This should be called during application shutdown to ensure all connections are properly closed and resources are released.
     """

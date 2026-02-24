@@ -15,7 +15,7 @@ from Logs.logs import api_logger
 
 
 async def run_monitor_cycle():
-    """Function to monitor API health and log resuts to the datatbase"""
+    """Function to monitor API health and log results to the datatbase"""
 
     url = "https://us-treasury-pipeline.onrender.com/health"
     start_time = time.time()
@@ -32,7 +32,7 @@ async def run_monitor_cycle():
             message = f"{message}: Endpoint missing - check your URL"
         elif status == 405:
             message = f"{message}: Wrong method - use GET, not POST"
-        health_status = status == 200  # Setting status = True if condition is fufilled
+        health_status = status == 200  # Setting status = True if condition is fulfilled
 
     except requests.exceptions.RequestException as e:
         api_logger.error(f"Request failed: {e}")

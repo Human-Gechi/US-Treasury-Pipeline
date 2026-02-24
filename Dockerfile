@@ -16,6 +16,6 @@ COPY . .
 RUN useradd -m newuser
 USER newuser
 
-CMD [ "uvicorn", "Api:main:app", "--host", "0.0.0.0", "--port", "8000" ]
+CMD [ "uvicorn", "Api.main:app", "--host", "0.0.0.0", "--port", "8000" ]
 
 

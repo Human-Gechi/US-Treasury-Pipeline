@@ -93,7 +93,7 @@ async def fetch_by_security_type(
     try:
         security_type = (
             security_type.strip()
-        )  # Strip any leading or trrailing whitespace
+        )  # Strip any leading or trailing whitespace
         query = select(Records).where(Records.security_type_desc == security_type)
         rows = await Session.execute(query)
         result = rows.mappings().all()
@@ -153,7 +153,7 @@ async def fetch_by_date(Session: AsyncSession, year=None, month=None, day=None):
         raise e
 
 
-async def fetch_by_type(Session: AsyncSession) -> None:
+async def fetch_by_type(Session: AsyncSession) -> list[str]:
     """Fetch unique security types from the database.
 
     Parameters:

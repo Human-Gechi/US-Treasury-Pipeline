@@ -54,7 +54,7 @@ def request_json(url, params=None, timeout=50):
         streamlit_logger.error(
             f"Invalid JSON from {url}: {e}; body={resp.text}", exc_info=True
         )  # Log file error
-        st.error("Invalid JSON response from API.")  # Streamlit dahsboard error
+        st.error("Invalid JSON response from API.")  # Streamlit dashboard error
         return None
 
 
@@ -205,7 +205,7 @@ def line_graph_filtered():
         )  # Convert to numeric
         df = df.dropna(
             subset=["record_date", "avg_interest_rate_amt"]
-        )  # Drop null values in the columns if nay
+        )  # Drop null values in the columns if any
 
         if year_opt != "All":  # If year = ALL
             df = df[df["record_date"].dt.year == int(year_opt)]

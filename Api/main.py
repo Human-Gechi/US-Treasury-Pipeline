@@ -29,7 +29,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://us-treasury-pipeline-rijzjnbzowvw8ydra7f5uq.streamlit.app/"
+        "https://us-treasury-pipeline-rijzjnbzowvw8ydra7f5uq.streamlit.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],

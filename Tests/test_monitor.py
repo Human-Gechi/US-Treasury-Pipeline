@@ -25,4 +25,4 @@ class TestMonitorDB:
             await monitor_script.run_monitor_cycle()
             # No exceptions raised == table was created successfully
         except Exception as e:
-            pytest.fail(f"Monitor cycle failes: {e}")
+            pytest.fail(f"Monitor cycle failed: {e}")

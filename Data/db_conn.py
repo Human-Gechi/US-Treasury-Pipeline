@@ -63,7 +63,7 @@ async def create_tables():  # Create tables
         global db_pool  # Use db_pool
         if db_pool is None:
             raise Exception(
-                "DB pool not initialized. Call connect_db_pool() "
+                "DB pool not initialized. Call connect_to_db() "
             )  # If no connection made error
         # Acquire connection and execute table creation query
         async with db_pool.begin() as session:
@@ -128,15 +128,13 @@ async def insert_data(rows, batch_size=1000):
                                 )
                                 .returning(Records.record_id)
                             )
+                            result = await connection.execute(stmt)
+                            inserted_row = result.fetchone()
 
-                        result = await connection.execute(stmt)
-                        inserted_row = result.fetchone()
-
-                        if inserted_row:
-                            total_inserted += 1
-                        else:
-                            total_skipped += 1
-
+                            if inserted_row:
+                                total_inserted += 1
+                            else:
+                                total_skipped += 1
                         db_logger.info(
                             f"Batch: {total_inserted} inserted, {total_skipped} skipped"
                         )

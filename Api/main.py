@@ -141,7 +141,7 @@ async def total_records(
 async def latest_record(
     db_connection=Depends(service.get_db),  # Database dependency
 ):
-    """Fecth latest record"""
+    """Fetch latest record"""
     record = await service.fetch_latest_record(
         Session=db_connection
     )  # Fetch latest_record

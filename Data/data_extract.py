@@ -19,7 +19,6 @@ async def api_insertion(
     records: List[Tuple[datetime, str, float]], batch_size=1000
 ) -> List[Tuple[datetime, str, float]]:
     try:
-        records = []
         page_size = 100
         page_num = 1
         total_inserted = 0  # Initialize once outside loop

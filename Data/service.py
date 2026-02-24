@@ -125,7 +125,7 @@ async def fetch_by_date(Session: AsyncSession, year=None, month=None, day=None):
         )  # Append year to query parts
         params["year"] = int(year)  # Append year to params
 
-    if month is not None:  # If month is nnot None
+    if month is not None:  # If month is not None
         query_parts.append(
             " AND EXTRACT(MONTH FROM record_date) = :month"
         )  # Append month to query parts

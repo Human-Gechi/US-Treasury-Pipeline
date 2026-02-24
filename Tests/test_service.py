@@ -78,7 +78,7 @@ class TestDataModule:
     async def test_fetch_by_security_type(
         self, session: AsyncSession, security_type: str
     ) -> None:
-        "Test fetching records by security type from DB."
+        """Test fetching records by security type from DB."""
         records = await service.fetch_by_security_type(
             session, security_type=security_type
         )

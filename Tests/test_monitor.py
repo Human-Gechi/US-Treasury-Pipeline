@@ -20,7 +20,7 @@ class TestMonitorDB:
 
     @pytest.mark.asyncio
     async def test_run_monitor_cycle(self) -> None:
-        "Test the run monitor_cycle function."
+        """Test the run monitor_cycle function."""
         try:
             await monitor_script.run_monitor_cycle()
             # No exceptions raised == table was created successfully

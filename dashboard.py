@@ -54,7 +54,7 @@ def request_json(url, params=None, timeout=50):
         streamlit_logger.error(
             f"Invalid JSON from {url}: {e}; body={resp.text}", exc_info=True
         )  # Log file error
-        st.error("Invalid JSON response from API.")  # Streamlit dahsboard error
+        st.error("Invalid JSON response from API.")  # Streamlit dashboard error
         return None
 
 

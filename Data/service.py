@@ -93,7 +93,7 @@ async def fetch_by_security_type(
     try:
         security_type = (
             security_type.strip()
-        )  # Strip any leading or trrailing whitespace
+        )  # Strip any leading or trailing whitespace
         query = select(Records).where(Records.security_type_desc == security_type)
         rows = await Session.execute(query)
         result = rows.mappings().all()

@@ -13,7 +13,7 @@ from Logs.logs import db_logger
 
 
 async def create_tables():
-    """Function tto create tables in the database"""
+    """Function to create tables in the database"""
     try:
         from Data.db_conn import close_db_pool, connect_to_db
 

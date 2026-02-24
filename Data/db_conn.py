@@ -63,7 +63,7 @@ async def create_tables():  # Create tables
         global db_pool  # Use db_pool
         if db_pool is None:
             raise Exception(
-                "DB pool not initialized. Call connect_db_pool() "
+                "DB pool not initialized. Call connect_to_db() "
             )  # If no connection made error
         # Acquire connection and execute table creation query
         async with db_pool.begin() as session:

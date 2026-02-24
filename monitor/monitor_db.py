@@ -35,7 +35,7 @@ async def create_tables():
 
             # Create unique index
             index = DDL(
-                "CREATE UNIQUE INDEX IF NOT EXISTS uq_records ON avg_us_securities_2001_present (record_date, security_type_desc, security_desc);"
+                "CREATE UNIQUE INDEX IF NOT EXISTS uq_checks ON api_health_checks (checked_at, status_code, status_message);"
             )  # Create unique index to prevent duplicate records
             event.listen(APIHealthCheck.__table__, "after_create", index)
 

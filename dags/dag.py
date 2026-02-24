@@ -34,8 +34,8 @@ def securities_rate():
     def run_data():  # function for the task
         import asyncio  # Inner package imports
 
-        from ..Data.data_extract import api_insertion
-        from ..Data.db_conn import connect_to_db
+        from Data.data_extract import api_insertion
+        from Data.db_conn import connect_to_db
 
         async def main():  # Run the functions
             await connect_to_db()

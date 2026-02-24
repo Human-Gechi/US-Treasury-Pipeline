@@ -205,7 +205,7 @@ def line_graph_filtered():
         )  # Convert to numeric
         df = df.dropna(
             subset=["record_date", "avg_interest_rate_amt"]
-        )  # Drop null values in the columns if nay
+        )  # Drop null values in the columns if any
 
         if year_opt != "All":  # If year = ALL
             df = df[df["record_date"].dt.year == int(year_opt)]

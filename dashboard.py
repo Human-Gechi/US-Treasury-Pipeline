@@ -199,7 +199,7 @@ def line_graph_filtered():
 
         df["record_date"] = pd.to_datetime(
             df["record_date"], errors="coerce"
-        )  # Convert to datetimE
+        )  # Convert to datetime
         df["avg_interest_rate_amt"] = pd.to_numeric(
             (df["avg_interest_rate_amt"] * 100).round(2), errors="coerce"
         )  # Convert to numeric

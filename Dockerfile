@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-#See logs int docker in realtime
+#See logs in docker in realtime
 ENV PYTHONUNBUFFERED=1
 
 #DO NOT CREATE .pyc files

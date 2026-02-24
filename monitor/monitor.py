@@ -69,7 +69,7 @@ async def run_monitor_cycle():
     else:
         api_logger.info(
             f"[{status}] {message} - Recorded ({latency:.2f}ms)"
-        )  # Print Status message and time takaen
+        )  # Print Status message and time taken
     finally:
         await close_db_pool()  # Close the database connection
 

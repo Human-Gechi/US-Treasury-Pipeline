@@ -1,46 +1,54 @@
-#IMporting necessary libraries
+import asyncio
 import os
-import asyncpg
-from dotenv import load_dotenv
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from dotenv import load_dotenv
+
 load_dotenv()
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from sqlalchemy import DDL, event
+
+from Data.models import APIHealthCheck
 from Logs.logs import db_logger
 
-db_url = os.getenv("DATABASE_URL") #DB url frmo .env file
-db_pool = None
-async def make_connection():
-    """Create and  the database."""
-    global db_pool
-    if db_pool is None:
-        db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5) #Create a connection pool
-        db_logger.info("Database pool created.") #Log message
 
-async def create_tables(conn): #Create tables in the database
-    global db_pool
-    if db_pool is None:
-        await make_connection()
-        db_logger.info("Database pool created for table creation.") #Log message
-
-    create_table_query = """
-    CREATE TABLE IF NOT EXISTS API_health_checks (
-        id SERIAL PRIMARY KEY,
-        checked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        status_code INTEGER NOT NULL,
-        status_message TEXT,
-        latency_ms FLOAT NOT NULL,
-        is_healthy BOOLEAN NOT NULL
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_checked_at 
-    ON API_health_checks (checked_at);
-    """ #SQL query to create table and index
+async def create_tables():
+    """Function tto create tables in the database"""
     try:
-        async with db_pool.acquire() as conn: #Acquire a connection from the pool
-            await conn.execute(create_table_query) #Execute the create table query
+        from Data.db_conn import close_db_pool, connect_to_db
+
+        await connect_to_db()
+
+        from Data.db_conn import db_engine
+
+        db_logger.info("Database pool created for table creation.")
+
+        if db_engine is None:
+            raise Exception("db_engine not initialized")
+
+        # Create tables from schemas and create unique index after table creation
+        async with db_engine.begin() as conn:
+            await conn.run_sync(
+                APIHealthCheck.metadata.create_all,
+                tables=[APIHealthCheck.metadata.tables["api_health_checks"]],
+            )  # Create only the API_health_checks table
+
+            # Create unique index
+            index = DDL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS uq_records ON avg_us_securities_2001_present (record_date, security_type_desc, security_desc);"
+            )  # Create unique index to prevent duplicate records
+            event.listen(APIHealthCheck.__table__, "after_create", index)
+
+        db_logger.info("Table created successfully")
     except Exception as e:
-        db_logger.info("Table and schema were not created") #Error log
-    else:
-        db_logger.info("Table and schema created successfully") #Success log
+        db_logger.error(f"Table was not created: {e}")
+    finally:
+        await close_db_pool()
 
 
+async def main():
+    await create_tables()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

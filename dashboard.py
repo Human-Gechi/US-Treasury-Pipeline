@@ -77,7 +77,7 @@ def fetch_records_for_type(security_type: str):
         return []
     return (
         payload.get("Record", payload) if isinstance(payload, dict) else payload
-    )  # Make a request to the endpoint if output is a dictionary else retrun whatever is seen
+    )  # Make a request to the endpoint if output is a dictionary else return whatever is seen
 
 
 def get_latest_records():

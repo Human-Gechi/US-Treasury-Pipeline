@@ -15,7 +15,7 @@ from Logs.logs import api_logger
 
 
 async def run_monitor_cycle():
-    """Function to monitor API health and log resuts to the datatbase"""
+    """Function to monitor API health and log results to the datatbase"""
 
     url = "https://us-treasury-pipeline.onrender.com/health"
     start_time = time.time()

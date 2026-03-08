@@ -1,0 +1,58 @@
+name: Api Monitoring
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    push:
+      branches:
+        - main
+        - issues/fix
+
+    pull_request:
+      branches:
+        - issues/fix
+
+jobs:
+  api-monitoring:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Api monitoring
+        env:
+          DATABASE_URL: ${{ secrets.DB_URL }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          python monitor/monitor.py
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest Tests/
+
+
+
+

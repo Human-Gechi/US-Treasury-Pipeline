@@ -1,0 +1,13 @@
+venv/
+logs/
+.git/
+.github/
+__pycache__/
+*.pyc
+.env
+tests/
+monitor/
+dashboard.py
+*.log
+.streamlit/
+.ignorecontents

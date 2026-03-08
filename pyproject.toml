@@ -1,0 +1,24 @@
+[project]
+name = "average-securities-rate"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = requirements.txt
+
+[tool.ruff]
+line-length = 80
+target-version = "py311"
+exclude = [
+  ".git",
+  "venv",
+  "__pycache__",
+  ".dockerignore",
+  "docker-compose.yaml",
+
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

@@ -1,0 +1,12 @@
+api_log.log
+db_logs.log
+.env
+securities
+__pycache__
+docker-compose.yml
+streamlit_log.log
+*Logs
+config
+*.ruff_cache
+*.streamlit
+venv

@@ -33,25 +33,29 @@ The US Treasury Pipeline is a full-stack application designed to ingest Treasury
 
 ```
 US-Treasury-Pipeline/
-├── Api/                    # FastAPI application & endpoints
+├── api/                    # FastAPI application & endpoints
 │   ├── main.py             # FastAPI application entry point
-│   ├── models/             # Data models & schemas
-├── Data/                   # Raw and processed data storage
+├── dags/
+|   └── dag.py              # Dag file
+├── data/                   # Raw and processed data storage
 │   ├── db_conn             #Connection to database
-│   └── data.py             # data extraction
+│   └── data_extract.py     # data extraction
 |   └── models.py           # Data models for API endpoint
+|   └── service.py          #Api service
 ├── Logs/                   # Pipeline execution logs
 │   └── [Execution records and error tracking]
 ├── monitor/
 |   └── monitor_db.py       # Make connection to database, create table for monitoring
 |   └── monitor.py          # Make a request to API endpoint, check fir status and append staus to db
 ├── dashboard.py            # Streamlit frontend application
-├── dag.py                  # Dag file
 ├── requirements.txt        # Python dependencies
 ├── Dockerfile              # Container configuration
 ├── .gitignore              # Git ignore rules
 ├── .dockerignore           # Docker ignore rules
 └── README.md               # Project documentation
+└── pytest.ini
+└── docker-compose.yaml     #Airflow dag configuration
+└── pyproject.toml          
 ```
 
 ---

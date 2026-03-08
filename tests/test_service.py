@@ -6,8 +6,8 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import Data.db_conn as db_conn
-import Data.service as service
+import data.db_conn as db_conn
+import data.service as service
 
 
 @pytest.fixture(scope="function")

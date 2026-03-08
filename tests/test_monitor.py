@@ -4,8 +4,8 @@ import sys
 import pytest
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import Monitor.monitor as monitor_script
-import Monitor.monitor_db as monitor
+import monitor.monitor as monitor_script
+import monitor.monitor_db as monitor
 
 
 class TestMonitorDB:

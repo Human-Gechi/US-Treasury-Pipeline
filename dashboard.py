@@ -4,7 +4,7 @@ import requests
 import streamlit as st
 from dotenv import load_dotenv
 
-from logs.log import streamlit_logger
+from log import streamlit_logger
 
 load_dotenv()
 

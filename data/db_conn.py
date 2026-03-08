@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import (
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.models import Records
-from logs.log import db_logger
+from log import db_logger
 
 load_dotenv()  # Load env. variables
 

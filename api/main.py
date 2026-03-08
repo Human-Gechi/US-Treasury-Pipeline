@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import data.service as service
 from data.db_conn import close_db_pool, connect_to_db
-from logs.log import api_logger
+from log import api_logger
 
 
 load_dotenv()

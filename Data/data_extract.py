@@ -5,12 +5,13 @@ import sys
 from typing import List, Tuple
 
 import httpx
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime
 
-from Data.db_conn import connect_to_db, insert_data
-from Logs.logs import api_logger
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data.db_conn import insert_data
+from log import api_logger
+
 
 url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates"
 
@@ -21,20 +22,16 @@ async def api_insertion(
     try:
         page_size = 100
         page_num = 1
-        total_inserted = 0  # Initialize once outside loop
-        total_skipped = 0  # Initialize once outside loop
+        total_inserted = 0
+        total_skipped = 0
 
-        async with httpx.AsyncClient(
-            timeout=httpx.Timeout(30.0, connect=10.0)
-        ) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=10.0)) as client:
             while True:
                 params = {"page[size]": page_size, "page[number]": page_num}
                 response = await client.get(url, params=params)
 
                 if response.status_code != 200:
-                    api_logger.error(
-                        f"API error {response.status_code}: {response.text}"
-                    )
+                    api_logger.error(f"API error {response.status_code}: {response.text}")
                     break
 
                 data = response.json()
@@ -51,9 +48,7 @@ async def api_insertion(
                         if raw_value and raw_value.lower() != "null"
                         else 0
                     )
-                    record_date = datetime.strptime(
-                        item["record_date"], "%Y-%m-%d"
-                    ).date()
+                    record_date = datetime.strptime(item["record_date"], "%Y-%m-%d").date()
                     records.append(
                         (
                             record_date,
@@ -98,11 +93,3 @@ async def api_insertion(
 
     except Exception as e:
         api_logger.exception(f"Unexpected failure: {e}")
-
-
-async def main():
-    await connect_to_db()
-    await api_insertion(records=[])
-
-
-asyncio.run(main())

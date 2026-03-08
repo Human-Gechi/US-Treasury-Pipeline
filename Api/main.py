@@ -10,43 +10,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import Data.service as service  # Importing necessary database functions from Data\models.py
-from Data.db_conn import (  # Importing necessary database connection functions from Data\db_conn.py
-    close_db_pool,
-    connect_to_db,
-)
-from Logs.logs import api_logger  # Importing logger for API logs
+
+import data.service as service
+from data.db_conn import close_db_pool, connect_to_db
+from log import api_logger
+
 
 load_dotenv()
 
-# Creating FastAPI app instance
-app = FastAPI(
-    title="US treasury data",
-    version="1.0.0",
-    description="Application Programming Interface for Average rate of US securities",
-)
-# Setting up CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "https://us-treasury-pipeline-rijzjnbzowvw8ydra7f5uq.streamlit.app"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 # Setting up API security
 API_KEY_NAME = "API_KEY"
-api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
+API_KEY_HEADER = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 API_KEY = os.getenv("API_KEY")
 
 
-async def validate_key(api_key: str = Security(api_key_header)):
+async def validate_key(api_key: str = Security(API_KEY_HEADER)):
     """Validate the provided API key against the expected key from environment variable."""
 
-    expected_api_key = os.getenv(
-        "API_KEY"
-    )  # Retrieving expected API key from environment variable
+    expected_api_key = os.getenv("API_KEY")  # Retrieving expected API key from environment variable
     print(
         True if api_key == expected_api_key else False
     )  # Print true if API key is valid, false otherwise
@@ -59,7 +40,7 @@ async def validate_key(api_key: str = Security(api_key_header)):
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     """Lifespan function to manage database connections on startup and shutdown."""
 
     try:
@@ -78,9 +59,21 @@ async def lifespan(app: FastAPI):
         api_logger.error(f"Error closing database: {e}")
 
 
+# Creating FastAPI app instance
 app = FastAPI(
-    lifespan=lifespan
-)  # Creating FastAPI app instance with lifespan for database connection management
+    lifespan=lifespan,
+    title="US treasury data",
+    version="1.0.0",
+    description="Application Programming Interface for Average rate of US securities",
+)
+# Setting up CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://us-treasury-pipeline-rijzjnbzowvw8ydra7f5uq.streamlit.app"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")  # Root endpoint
@@ -109,15 +102,18 @@ async def all_records(
 
     skip_amount = (page - 1) * size  # Offset calculation
     if all_records:  # Get all records if all_records is true
-        records = await service.fetch_all_records(
-            Session=db_connection, limit=1000, offset=100
-        )
+        records = await service.fetch_all_records(Session=db_connection, limit=1000, offset=100)
         return {"Record": records}
     else:
         records = await service.fetch_all_records(
             Session=db_connection, limit=size, offset=skip_amount
         )  # Fetch records with limit and offset
-        results = {"Record": records, "page": page, "size": size, "offset": skip_amount}
+        results = {
+            "Record": records,
+            "page": page,
+            "size": size,
+            "offset": skip_amount,
+        }
     return results
 
 
@@ -128,9 +124,7 @@ async def total_records(
     db_connection=Depends(service.get_db),  # DB Dependency
 ):
     """Fetch total record count."""
-    total_count = await service.fetch_total_records(
-        Session=db_connection
-    )  # Fetch total count
+    total_count = await service.fetch_total_records(Session=db_connection)  # Fetch total count
     result = {"Record_count": total_count}
     return result  # display result
 
@@ -142,9 +136,7 @@ async def latest_record(
     db_connection=Depends(service.get_db),  # Database dependency
 ):
     """Fetch latest record"""
-    record = await service.fetch_latest_record(
-        Session=db_connection
-    )  # Fetch latest_record
+    record = await service.fetch_latest_record(Session=db_connection)  # Fetch latest_record
     result = {"Record": record}  # result
 
     return result  # display result
@@ -174,9 +166,7 @@ async def get_records_by_date(
     day: Optional[int] = Query(None, description="Filter date by day (1-31)"),
 ):
     """fetch records by date filters."""
-    record = await service.fetch_by_date(
-        Session=db_connection, year=year, month=month, day=day
-    )
+    record = await service.fetch_by_date(Session=db_connection, year=year, month=month, day=day)
     return {"Record": record}  # display result
 
 
@@ -186,7 +176,8 @@ async def get_records_by_date(
 async def get_records_by_security_type(
     db_connection=Depends(service.get_db),
     security_type: str = Query(
-        ..., description="Filter by security type description i.e security_type_desc"
+        ...,
+        description="Filter by security type description i.e security_type_desc",
     ),  # Security type query parameter
 ):
     """Fetch records by security type."""

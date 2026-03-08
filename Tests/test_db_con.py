@@ -4,7 +4,7 @@ import sys
 import pytest
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from Data.db_conn import connect_to_db, create_tables, insert_data
+from data.db_conn import connect_to_db, create_tables, insert_data
 
 
 @pytest.fixture(scope="function")

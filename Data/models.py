@@ -25,9 +25,7 @@ class Records(Base):
     """SQLAlchemy model representing the avg_us_securities_2001_present table in the database."""
 
     __tablename__ = "avg_us_securities_2001_present"
-    record_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    record_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     record_date: Mapped[date] = mapped_column(Date, nullable=False)
     record_year: Mapped[int] = mapped_column(
         Integer,
@@ -40,9 +38,7 @@ class Records(Base):
         ),
     )
     security_desc: Mapped[str] = mapped_column(String(100))
-    avg_interest_rate_amt: Mapped[Decimal] = mapped_column(
-        Numeric(7, 5), server_default="0"
-    )
+    avg_interest_rate_amt: Mapped[Decimal] = mapped_column(Numeric(7, 5), server_default="0")
     __table_args__ = (
         UniqueConstraint(
             "record_date",
@@ -64,6 +60,4 @@ class APIHealthCheck(Base):
     status_message: Mapped[str] = mapped_column(String(255))
     latency_ms: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     is_healthy: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    __table_args__ = (
-        CheckConstraint("is_healthy IN (TRUE, FALSE)", name="check_is_healthy"),
-    )
+    __table_args__ = (CheckConstraint("is_healthy IN (TRUE, FALSE)", name="check_is_healthy"),)

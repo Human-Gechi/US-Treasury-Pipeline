@@ -3,16 +3,14 @@ import os
 import sys
 from typing import AsyncGenerator
 
-from dotenv import load_dotenv
 from sqlalchemy import distinct, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import Data.db_conn
-from Data.models import Records
-from Logs.logs import db_logger
 
-load_dotenv()
+import data.db_conn
+from data.models import Records
+from log import db_logger
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -22,16 +20,14 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
     It ensures that the database connection pool is initialized before yielding a session for use in endpoint handlers.
     """
-    if Data.db_conn.db_pool is None:
-        await Data.db_conn.connect_to_db()
+    if data.db_conn.db_pool is None:
+        await data.db_conn.connect_to_db()
 
-    async with Data.db_conn.db_pool() as session:
+    async with data.db_conn.db_pool() as session:
         yield session
 
 
-async def fetch_all_records(
-    Session: AsyncSession, limit: int, offset: int
-) -> list[dict]:
+async def fetch_all_records(Session: AsyncSession, limit: int, offset: int) -> list[dict]:
     """Fetch all records from the database with pagination.
 
     Parameters:
@@ -81,9 +77,7 @@ async def fetch_total_records(Session: AsyncSession) -> int:
         raise e
 
 
-async def fetch_by_security_type(
-    Session: AsyncSession, security_type: str
-) -> list[dict]:
+async def fetch_by_security_type(Session: AsyncSession, security_type: str) -> list[dict]:
     """Fetch records by security type.
 
     Parameters:
@@ -91,9 +85,7 @@ async def fetch_by_security_type(
         security_type: The security type description to filter records by.
     """
     try:
-        security_type = (
-            security_type.strip()
-        )  # Strip any leading or trailing whitespace
+        security_type = security_type.strip()  # Strip any leading or trailing whitespace
         query = select(Records).where(Records.security_type_desc == security_type)
         rows = await Session.execute(query)
         result = rows.mappings().all()
@@ -139,9 +131,7 @@ async def fetch_by_date(Session: AsyncSession, year=None, month=None, day=None):
         "ORDER BY record_date DESC"
     )  # Append order by to the query parts on the record date
 
-    query = " ".join(
-        query_parts
-    )  # . join the query part using space to form the final query
+    query = " ".join(query_parts)  # . join the query part using space to form the final query
     try:
         result = await Session.execute(
             text(query), params
@@ -159,9 +149,7 @@ async def fetch_by_type(Session: AsyncSession) -> list[str]:
     Parameters:
         Session: The async database session to use for the query.
     """
-    query = select(distinct(Records.security_type_desc)).order_by(
-        Records.security_type_desc
-    )
+    query = select(distinct(Records.security_type_desc)).order_by(Records.security_type_desc)
     rows = await Session.execute(query)
     result = rows.scalars().all()
     return result

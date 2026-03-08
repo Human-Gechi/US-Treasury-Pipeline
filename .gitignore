@@ -5,4 +5,8 @@ securities
 __pycache__
 docker-compose.yml
 streamlit_log.log
-secrets.toml
+*Logs
+config
+*.ruff_cache
+*.streamlit
+venv

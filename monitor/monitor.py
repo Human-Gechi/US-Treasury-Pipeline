@@ -1,51 +1,77 @@
-#importing necessary libraries
-import requests
-import time
-import monitor_db
+# importing necessary libraries
 import asyncio
+import os
+import sys
+import time
+from datetime import datetime
+
+import requests
+from sqlalchemy import insert
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data.models import APIHealthCheck
+from logs.log import api_logger
+
 
 async def run_monitor_cycle():
-    #Making a request to the endpoint
+    """Function to monitor API health and log results to the datatbase"""
+
     url = "https://us-treasury-pipeline.onrender.com/health"
-    start_time = time.time() #start time
+    start_time = time.time()
+    from data.db_conn import close_db_pool, connect_to_db
 
     try:
-        #Making a GET request to the API endpoint
+        # Making a GET request to the API endpoint
         response = requests.get(url, timeout=10)
         status = response.status_code
         message = response.reason
 
-        #Error messages for specific status codes
+        # Error messages for specific status codes
         if status == 404:
             message = f"{message}: Endpoint missing - check your URL"
         elif status == 405:
             message = f"{message}: Wrong method - use GET, not POST"
-        health_status = (status == 200) #Setting status = True if condition is fufilled
+        health_status = status == 200  # Setting status = True if condition is fulfilled
 
-    except requests.exceptions.RequestException as e: #Handling request exceptions
-        #If no specific status code is returned as sometimes render API goes to sleep
+    except requests.exceptions.RequestException as e:
+        api_logger.error(f"Request failed: {e}")
+
+        # If no specific status code is returned as sometimes render API goes to sleep
         status = 0
-        message = "Connection Error: API might be sleeping or down" #Api may be down
+        message = "Connection Error: API might be sleeping or down"
         health_status = False
 
-    latency = round((time.time() - start_time) * 1000, 2) #Calculating latency/Start to finish times in milliseconds
+    latency = round(
+        (time.time() - start_time) * 1000, 2
+    )  # Calculating latency/Start to finish times in milliseconds
 
-    #writing to aiven db
-    await monitor_db.make_connection() #Await a connection is made from the pool
+    await connect_to_db()
+    from data.db_conn import db_engine
 
-    db_pool = monitor_db.db_pool
-    if db_pool is None:
-          return "No connection made to the database."
+    if db_engine is None:
+        api_logger.error("No connection made to the database.")
+        return "No connection made to the database."
     try:
-            async with db_pool.acquire() as conn:
-                await conn.execute("""
-                    INSERT INTO API_health_checks 
-                    (status_code, status_message, latency_ms, is_healthy) 
-                    VALUES ($1, $2, $3, $4)
-                """, status, message, latency, health_status)
+        async with db_engine.begin() as conn:
+            await conn.execute(
+                insert(APIHealthCheck).values(
+                    checked_at=datetime.utcnow(),
+                    status_code=status,
+                    status_message=message,
+                    latency_ms=latency,
+                    is_healthy=health_status,
+                )
+            )
+            api_logger.info(f"[{status}] {message} - Recorded ({latency:.2f}ms)")
     except Exception as e:
-                print(f"Error inserting into database: {e}") #Error in db insertion
+        api_logger.error(f"Error inserting into database: {e}")  # Error in db insertion
     else:
-            print(f"[{status}] {message} - Recorded ({latency:.2f}ms)") #Print Status message and time takaen
+        api_logger.info(
+            f"[{status}] {message} - Recorded ({latency:.2f}ms)"
+        )  # Print Status message and time taken
+    finally:
+        await close_db_pool()  # Close the database connection
 
-asyncio.run(run_monitor_cycle()) #un the async function
+
+asyncio.run(run_monitor_cycle())

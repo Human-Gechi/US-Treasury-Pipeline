@@ -68,26 +68,17 @@ class TestDataModule:
     @pytest.mark.asyncio
     async def test_fetch_total_records(self, session: AsyncSession) -> None:
         """Test fetching total record count from DB."""
-        total_records = await service.fetch_total_records(
-            session
-        )  # Fixed function name
+        total_records = await service.fetch_total_records(session)  # Fixed function name
         assert total_records > 0
         assert isinstance(total_records, int)
 
     @pytest.mark.asyncio
-    async def test_fetch_by_security_type(
-        self, session: AsyncSession, security_type: str
-    ) -> None:
+    async def test_fetch_by_security_type(self, session: AsyncSession, security_type: str) -> None:
         """Test fetching records by security type from DB."""
-        records = await service.fetch_by_security_type(
-            session, security_type=security_type
-        )
+        records = await service.fetch_by_security_type(session, security_type=security_type)
         assert isinstance(records, list)
         assert len(records) > 0
-        assert all(
-            record["Records"].security_type_desc == security_type
-            for record in records
-        )
+        assert all(record["Records"].security_type_desc == security_type for record in records)
         records.clear()
 
     @pytest.mark.asyncio

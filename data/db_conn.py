@@ -35,9 +35,7 @@ async def connect_to_db():  # Function to create a database pool
         db_engine = create_async_engine(
             db_url, echo=False, pool_size=10, max_overflow=20
         )  # Create an async engine with the given db url and pool settings
-        db_pool = async_sessionmaker(
-            db_engine, expire_on_commit=False, class_=AsyncSession
-        )
+        db_pool = async_sessionmaker(db_engine, expire_on_commit=False, class_=AsyncSession)
         db_logger.info(
             "Database pool created successfully"
         )  # Log message if db pool created successfully
@@ -139,15 +137,11 @@ async def insert_data(rows, batch_size=1000):
                                 total_inserted += 1
                             else:
                                 total_skipped += 1
-                        db_logger.info(
-                            f"Batch: {total_inserted} inserted, {total_skipped} skipped"
-                        )
+                        db_logger.info(f"Batch: {total_inserted} inserted, {total_skipped} skipped")
                     break
                 except Exception as e:
                     if attempt == max_retries:
-                        db_logger.error(
-                            f"DB insertion failed after {max_retries} attempts: {e}"
-                        )
+                        db_logger.error(f"DB insertion failed after {max_retries} attempts: {e}")
                     else:
                         backoff = base_delay * (2 ** (attempt - 1))
                         db_logger.warning(

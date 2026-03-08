@@ -6,6 +6,7 @@ __pycache__
 docker-compose.yml
 streamlit_log.log
 *Logs
-*config
+config
 *.ruff_cache
 *.streamlit
+venv

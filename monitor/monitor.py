@@ -10,8 +10,8 @@ from sqlalchemy import insert
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from Data.models import APIHealthCheck
-from Logs.logs import api_logger
+from data.models import APIHealthCheck
+from logs.log import api_logger
 
 
 async def run_monitor_cycle():
@@ -19,7 +19,7 @@ async def run_monitor_cycle():
 
     url = "https://us-treasury-pipeline.onrender.com/health"
     start_time = time.time()
-    from Data.db_conn import close_db_pool, connect_to_db
+    from data.db_conn import close_db_pool, connect_to_db
 
     try:
         # Making a GET request to the API endpoint
@@ -47,7 +47,7 @@ async def run_monitor_cycle():
     )  # Calculating latency/Start to finish times in milliseconds
 
     await connect_to_db()
-    from Data.db_conn import db_engine
+    from data.db_conn import db_engine
 
     if db_engine is None:
         api_logger.error("No connection made to the database.")

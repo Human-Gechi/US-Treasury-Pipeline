@@ -2,24 +2,22 @@ import asyncio
 import os
 import sys
 
-from dotenv import load_dotenv
-
-load_dotenv()
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlalchemy import DDL, event
 
-from Data.models import APIHealthCheck
-from Logs.logs import db_logger
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data.models import APIHealthCheck
+from logs.log import db_logger
 
 
 async def create_tables():
     """Function to create tables in the database"""
     try:
-        from Data.db_conn import close_db_pool, connect_to_db
+        from data.db_conn import close_db_pool, connect_to_db
 
         await connect_to_db()
 
-        from Data.db_conn import db_engine
+        from data.db_conn import db_engine
 
         db_logger.info("Database pool created for table creation.")
 

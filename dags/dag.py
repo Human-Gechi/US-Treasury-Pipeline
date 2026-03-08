@@ -1,16 +1,12 @@
 # Importing necessary libraries
+import asyncio
 import datetime
-import os
 import sys
 
 import pendulum
 
-# Third party
-from airflow.decorators import dag, task  # dag and task decorators
+from airflow.sdk import dag, task
 
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)  # Appending file parts to prevent function import errors
 # Default dags argument
 default_args = {
     "owner": "Human-Gechi",
@@ -19,7 +15,7 @@ default_args = {
     "email_on_retry": True,
     "retries": 3,
     "retry_delay": datetime.timedelta(minutes=3),
-}  # Dag definition
+}
 
 
 @dag(
@@ -28,22 +24,26 @@ default_args = {
     start_date=pendulum.datetime(2026, 2, 2),
     schedule="0 0 9 * *",
 )
-# Task definition using the @task decorator
 def securities_rate():
-    @task(task_id="run_data_task")  # Defining the task
-    def run_data():  # function for the task
-        import asyncio  # Inner package imports
+    @task(task_id="run_data_task")
+    def run_data():
 
-        from Data.data_extract import api_insertion
-        from Data.db_conn import connect_to_db
+        project_root = "/opt/airflow/"
 
-        async def main():  # Run the functions
+        if project_root not in sys.path:
+            sys.path.insert(0, project_root)
+
+        from data.data_extract import api_insertion
+        from data.db_conn import connect_to_db, close_db_pool
+
+        async def main():
             await connect_to_db()
-            await api_insertion()
+            await api_insertion(records=[])
+            await close_db_pool()
 
         asyncio.run(main())
 
     run_data()
 
 
-securities_rate()  # Call dag func.
+securities_rate()

@@ -4,7 +4,7 @@ import requests
 import streamlit as st
 from dotenv import load_dotenv
 
-from Logs.logs import streamlit_logger
+from logs.log import streamlit_logger
 
 load_dotenv()
 
@@ -16,37 +16,24 @@ st.title("Average US Securities Dashboard")
 
 
 def request_json(url, params=None, timeout=50):
-    """ Function to make a request to the API and return the JSON response."""
+    """Function to make a request to the API and return the JSON response."""
     try:
-        resp = requests.get(
-            url, headers=HEADERS, params=params, timeout=timeout
-        )  # Make a request
+        resp = requests.get(url, headers=HEADERS, params=params, timeout=timeout)  # Make a request
     except requests.exceptions.RequestException as e:
-
-        streamlit_logger.error(
-            f"Request failed: {e}", exc_info=True
-        )
-        st.error(
-            f"Network error calling API: {e}"
-        )
+        streamlit_logger.error(f"Request failed: {e}", exc_info=True)
+        st.error(f"Network error calling API: {e}")
         return None
 
     if resp.status_code >= 500:  # Error message for a 500 status_Code
-        streamlit_logger.error(
-            f"Server error {resp.status_code} for {url}: {resp.text}"
-        )
+        streamlit_logger.error(f"Server error {resp.status_code} for {url}: {resp.text}")
         st.error(
             f"Server error {resp.status_code}. Check backend logs."
         )  # Displayed error message on streamlit
         return None
 
     if resp.status_code >= 400:  # 400 status_code error
-        streamlit_logger.error(
-            f"API returned {resp.status_code} for {url}: {resp.text}"
-        )
-        st.error(
-            f"API error {resp.status_code}: {resp.text}"
-        )
+        streamlit_logger.error(f"API returned {resp.status_code} for {url}: {resp.text}")
+        st.error(f"API error {resp.status_code}: {resp.text}")
         return None
     try:
         return resp.json()  # Get Json dat
@@ -68,7 +55,7 @@ def fetch_security_types():
 
 @st.cache_data  # Caching data so data can be stored in cache doesn't affect the API, Database causing connection issues
 def fetch_records_for_type(security_type: str):
-    """ Function to fetch records for a particular security type."""
+    """Function to fetch records for a particular security type."""
     payload = request_json(
         f"{BASE_API_URL}/records/by-security-type",
         params={"security_type": security_type},
@@ -81,51 +68,39 @@ def fetch_records_for_type(security_type: str):
 
 
 def get_latest_records():
-    """ Function to get the latest record for each security type."""
-    payload = request_json(
-        f"{BASE_API_URL}/records/latest"
-    )
+    """Function to get the latest record for each security type."""
+    payload = request_json(f"{BASE_API_URL}/records/latest")
     if payload is None:
         return pd.DataFrame()
     return pd.DataFrame(payload)  # Return the result as a dataframe
 
 
 def total_count():
-    """ Function to get the total count of records and display it in a metric card."""
-    payload = request_json(
-        f"{BASE_API_URL}/records/record_count"
-    )
+    """Function to get the total count of records and display it in a metric card."""
+    payload = request_json(f"{BASE_API_URL}/records/record_count")
     if not payload:  # If no payload
         return  # Return nothing
-    total_records = payload.get("Record_count", {}).get(
-        "total_records"
-    )  # Get total record
+    total_records = payload.get("Record_count", {}).get("total_records")  # Get total record
     if total_records is not None:  # If the record was gotten
         st.metric(
             label="Record Count", value=total_records
         )  # Display total record count in a metric card
-        streamlit_logger.info(
-            "Displayed record count card successfully."
-        )
+        streamlit_logger.info("Displayed record count card successfully.")
 
 
 def display_latest():
-    """ Function to display the latest record"""
+    """Function to display the latest record"""
     df = get_latest_records()  # Get latest record dataframe
     st.subheader("Latest Record")  # Subheader for latest record
     if df.empty:  # If datafram is empty;
         st.write("No latest records found.")  # Display this message
     else:
-        st.dataframe(
-            df, width=700, height=220
-        )
+        st.dataframe(df, width=700, height=220)
 
 
 def card_display():
     """Function to display the count of each security type in a card format."""
-    types = (
-        fetch_security_types()
-    )
+    types = fetch_security_types()
     if not types:
         st.error("No security types available.")  # Display this message on
         return  # Return nothing
@@ -137,8 +112,8 @@ def card_display():
         )  # Count each record for a particular security type
     per_row = 3  # Number of cards per row
     rows = (
-        (len(types) + per_row - 1) // per_row
-    )  # Calculating the number of rows needed to display the count of each card
+        len(types) + per_row - 1
+    ) // per_row  # Calculating the number of rows needed to display the count of each card
     idx = 0  # Index to keep track of current security type
     for _ in range(rows):
         cols = st.columns(per_row)  # Create columns for each row
@@ -154,7 +129,7 @@ def card_display():
 
 
 def line_graph_filtered():
-    """ Function to display a line graph of average interest rates over time for selected security types and date filters."""
+    """Function to display a line graph of average interest rates over time for selected security types and date filters."""
     st.subheader("Average Securities Trends")  # Sub header
     types = fetch_security_types()  # Fetching security types
     if not types:
@@ -168,25 +143,21 @@ def line_graph_filtered():
     col1, col2, col3 = st.columns(3)  # 3 columns to display year, day, month
     with col1:
         year_opt = st.selectbox(
-            "Year (optional)", options=["All"] + list(range(2001, 2100)), index=0
+            "Year (optional)",
+            options=["All"] + list(range(2001, 2100)),
+            index=0,
         )
     with col2:
-        month_opt = st.selectbox(
-            "Month (optional)", options=["All"] + list(range(1, 13)), index=0
-        )
+        month_opt = st.selectbox("Month (optional)", options=["All"] + list(range(1, 13)), index=0)
     with col3:
-        day_opt = st.selectbox(
-            "Day (optional)", options=["All"] + list(range(1, 32)), index=0
-        )
+        day_opt = st.selectbox("Day (optional)", options=["All"] + list(range(1, 32)), index=0)
 
         all_data = []  # List of data in the endpoint
         for security_type in selected_types:  # For each security type selected
             records = fetch_records_for_type(security_type) or []  # Fetch the record
             for rec in records:
                 rec["security_type"] = security_type
-                all_data.append(
-                    rec
-                )  # Append record foreach security type to a list to hold data
+                all_data.append(rec)  # Append record foreach security type to a list to hold data
 
         if not all_data:  # If no data found.
             st.error("No records found for selected types.")
@@ -233,14 +204,12 @@ def line_graph_filtered():
         st.line_chart(
             st.session_state["line_chart_df"],
             width=700,
-            height=300,
-            use_container_width=False,
+            height=400,
         )
 
 
-
 def render_dashboard():
-    """ Function to render the dashboard by calling the necessary functions"""
+    """Function to render the dashboard by calling the necessary functions"""
     col1, col2 = st.columns([1, 3])
     with col1:
         total_count()

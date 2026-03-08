@@ -7,7 +7,7 @@ from sqlalchemy import DDL, event
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.models import APIHealthCheck
-from logs.log import db_logger
+from log import db_logger
 
 
 async def create_tables():

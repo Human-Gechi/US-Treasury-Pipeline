@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import data.db_conn
 from data.models import Records
-from logs.log import db_logger
+from log import db_logger
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

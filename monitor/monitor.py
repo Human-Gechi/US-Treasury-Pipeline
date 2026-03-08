@@ -11,7 +11,7 @@ from sqlalchemy import insert
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.models import APIHealthCheck
-from logs.log import api_logger
+from log import api_logger
 
 
 async def run_monitor_cycle():

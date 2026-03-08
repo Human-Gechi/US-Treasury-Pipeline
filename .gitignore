@@ -5,7 +5,8 @@ securities
 __pycache__
 docker-compose.yml
 streamlit_log.log
-*Logs
+logs/
+*.log
 config
 *.ruff_cache
 *.streamlit

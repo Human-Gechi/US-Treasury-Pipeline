@@ -72,12 +72,11 @@ def fetch_latest_records():
         return pd.DataFrame()  # Return empty dataframe if no payload
 
     if isinstance(payload, dict):
-        return pd.DataFrame([payload])  # wrap single record
+        return pd.DataFrame([payload])  # wrap single record from dict to list
     if isinstance(payload, list):
         return pd.DataFrame(payload)
 
     return pd.DataFrame()
-
 
 def total_count():
     """Function to get the total count of records and display it in a metric card."""
@@ -99,6 +98,7 @@ def total_count():
 
 
 def display_latest():
+    """ Function to display latest record."""
     st.subheader("Latest Record")
     df = fetch_latest_records()
 

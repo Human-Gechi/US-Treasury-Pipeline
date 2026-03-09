@@ -69,15 +69,13 @@ def fetch_latest_records():
     """Function to get the latest record for each security type."""
     payload = request_json(f"{BASE_API_URL}/records/latest")
     if not payload:
-        return None
-
-    if not isinstance(payload, dict):
         return pd.DataFrame()
 
-    if isinstance(payload, dict):
-        return pd.DataFrame([payload])  # wrap single record
     if isinstance(payload, list):
         return pd.DataFrame(payload)
+
+    if isinstance(payload, dict):
+        return pd.DataFrame([payload])  # wrap single record in a list
 
     return pd.DataFrame()
 

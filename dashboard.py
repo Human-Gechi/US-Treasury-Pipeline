@@ -8,7 +8,7 @@ from log import streamlit_logger
 
 load_dotenv()
 
-BASE_API_URL = "http://127.0.0.1:8000/"  # Deployed url on render
+BASE_API_URL = "https://us-treasury-pipeline.onrender.com/"  # Deployed url on render
 API_KEY = st.secrets["API_KEY"]
 HEADERS = {"API_KEY": API_KEY}
 
@@ -44,7 +44,7 @@ def request_json(url, params=None, timeout=50):
 @st.cache_data  # Caching data so data can be stored in cache doesn't affect the API, Database causing connection issues
 def fetch_security_types():
     payload = request_json(f"{BASE_API_URL}/records/types")  # Call the API endpoint
-    
+
     if not payload:
         return []
     return payload.get("Security_type_desc", []) if isinstance(payload, dict) else []

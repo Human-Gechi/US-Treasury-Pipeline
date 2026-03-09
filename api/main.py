@@ -28,7 +28,6 @@ async def validate_key(api_key: str = Security(API_KEY_HEADER)):
     """Validate the provided API key against the expected key from environment variable."""
 
     expected_api_key = os.getenv("API_KEY")  # Retrieving expected API key from environment variable
-    print(True if api_key == expected_api_key else False)  # Print true if API key is valid, false otherwise
 
     if expected_api_key is None or api_key != expected_api_key:  # If API key is invalid, raise HTTPException
         raise HTTPException(status_code=401, detail="Invalid API Key")  # Error messgae

@@ -33,9 +33,7 @@ class Records(Base):
     )
     security_type_desc: Mapped[str] = mapped_column(
         String(100),
-        CheckConstraint(
-            "security_type_desc IN ('Marketable', 'Non-marketable', 'Interest-bearing Debt')"
-        ),
+        CheckConstraint("security_type_desc IN ('Marketable', 'Non-marketable', 'Interest-bearing Debt')"),
     )
     security_desc: Mapped[str] = mapped_column(String(100))
     avg_interest_rate_amt: Mapped[Decimal] = mapped_column(Numeric(7, 5), server_default="0")

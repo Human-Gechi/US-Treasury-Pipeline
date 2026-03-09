@@ -18,7 +18,9 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     try:
         yield db_session
     finally:
-        await gen.aclose()  # Closes one AsyncGenerator instance, ensures database cleanup of the database session after each test.
+        await (
+            gen.aclose()
+        )  # Closes one AsyncGenerator instance, ensures database cleanup of the database session after each test.
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -82,9 +84,7 @@ class TestDataModule:
         records.clear()
 
     @pytest.mark.asyncio
-    async def test_fetch_by_date(
-        self, session: AsyncSession, date_params: tuple[int, int, int]
-    ) -> None:
+    async def test_fetch_by_date(self, session: AsyncSession, date_params: tuple[int, int, int]) -> None:
         """Test fetching records by date from the database."""
         records = await service.fetch_by_date(
             session,

@@ -36,9 +36,7 @@ async def connect_to_db():  # Function to create a database pool
             db_url, echo=False, pool_size=10, max_overflow=20
         )  # Create an async engine with the given db url and pool settings
         db_pool = async_sessionmaker(db_engine, expire_on_commit=False, class_=AsyncSession)
-        db_logger.info(
-            "Database pool created successfully"
-        )  # Log message if db pool created successfully
+        db_logger.info("Database pool created successfully")  # Log message if db pool created successfully
     except Exception as e:
         db_logger.error(f"Failed to create database pool: {e}")
         raise e
@@ -64,14 +62,10 @@ async def create_tables():  # Create tables
     try:
         global db_pool  # Use db_pool
         if db_pool is None:
-            raise Exception(
-                "DB pool not initialized. Call connect_to_db() "
-            )  # If no connection made error
+            raise Exception("DB pool not initialized. Call connect_to_db() ")  # If no connection made error
         # Acquire connection and execute table creation query
         async with db_pool.begin() as session:
-            await session.run_sync(
-                Records.metadata.create_all
-            )  # Create tables based on the defined models
+            await session.run_sync(Records.metadata.create_all)  # Create tables based on the defined models
             index = DDL(
                 "CREATE UNIQUE INDEX IF NOT EXISTS uq_records ON avg_us_securities_2001_present (record_date, security_type_desc, security_desc);"
             )  # Create unique index to prevent duplicate records
@@ -153,9 +147,7 @@ async def insert_data(rows, batch_size=1000):
         db_logger.error(f"DB insertion failed: {e}")
         db_logger.error(f"Exception type: {type(e)}")
 
-    db_logger.info(
-        f"Final results: {total_inserted} inserted, {total_skipped} skipped due to conflicts"
-    )
+    db_logger.info(f"Final results: {total_inserted} inserted, {total_skipped} skipped due to conflicts")
 
 
 # Call the functions to create tables and connect to db

@@ -28,13 +28,9 @@ async def validate_key(api_key: str = Security(API_KEY_HEADER)):
     """Validate the provided API key against the expected key from environment variable."""
 
     expected_api_key = os.getenv("API_KEY")  # Retrieving expected API key from environment variable
-    print(
-        True if api_key == expected_api_key else False
-    )  # Print true if API key is valid, false otherwise
+    print(True if api_key == expected_api_key else False)  # Print true if API key is valid, false otherwise
 
-    if (
-        expected_api_key is None or api_key != expected_api_key
-    ):  # If API key is invalid, raise HTTPException
+    if expected_api_key is None or api_key != expected_api_key:  # If API key is invalid, raise HTTPException
         raise HTTPException(status_code=401, detail="Invalid API Key")  # Error messgae
     return None
 
@@ -89,9 +85,7 @@ async def health_check():
     return {"status": "healthy"}
 
 
-@app.get(
-    "/records", dependencies=[Depends(validate_key)]
-)  # /records endpoint wit API key dependency
+@app.get("/records", dependencies=[Depends(validate_key)])  # /records endpoint wit API key dependency
 async def all_records(
     db_connection=Depends(service.get_db),  # DB dependency
     page: int = Query(1, ge=1),  # Page num query parameter
@@ -129,22 +123,14 @@ async def total_records(
     return result  # display result
 
 
-@app.get(
-    "/records/latest", dependencies=[Depends(validate_key)]
-)  # /records/latest endpoint with API key dependency
-async def latest_record(
-    db_connection=Depends(service.get_db),  # Database dependency
-):
+@app.get("/records/latest", dependencies=[Depends(validate_key)])
+async def latest_record(db_connection=Depends(service.get_db)):
     """Fetch latest record"""
-    record = await service.fetch_latest_record(Session=db_connection)  # Fetch latest_record
-    result = {"Record": record}  # result
-
-    return result  # display result
+    records = await service.fetch_latest_record(Session=db_connection)
+    return records
 
 
-@app.get(
-    "/records/types", dependencies=[Depends(validate_key)]
-)  # /records/types endpoint with API key dependency
+@app.get("/records/types", dependencies=[Depends(validate_key)])  # /records/types endpoint with API key dependency
 async def get_records_by_security_types(
     db_connection=Depends(service.get_db),  # Database dependency
 ):
@@ -153,9 +139,7 @@ async def get_records_by_security_types(
     return result  # display result
 
 
-@app.get(
-    "/records/by-date", dependencies=[Depends(validate_key)]
-)  # /records/by-date endpoint with API key dependency
+@app.get("/records/by-date", dependencies=[Depends(validate_key)])  # /records/by-date endpoint with API key dependency
 async def get_records_by_date(
     db_connection=Depends(service.get_db),
     year: Optional[int] = Query(None, description="Filter date by year(e.g YYYY)"),
@@ -167,7 +151,7 @@ async def get_records_by_date(
 ):
     """fetch records by date filters."""
     record = await service.fetch_by_date(Session=db_connection, year=year, month=month, day=day)
-    return {"Record": record}  # display result
+    return record  # display result
 
 
 @app.get(
@@ -181,11 +165,8 @@ async def get_records_by_security_type(
     ),  # Security type query parameter
 ):
     """Fetch records by security type."""
-    records = await service.fetch_by_security_type(
-        Session=db_connection, security_type=security_type
-    )
-    results = {"Record": records}  # result
-    return results  # display result
+    records = await service.fetch_by_security_type(Session=db_connection, security_type=security_type)
+    return records  # display result
 
 
 @app.get(
@@ -200,9 +181,7 @@ async def get_records_by_security_type_and_date(
 ):
     """Fetch records by security type and optional date filter."""
 
-    records = await service.fetch_by_security_type(
-        Session=db_connection, security_type=security_type
-    )
+    records = await service.fetch_by_security_type(Session=db_connection, security_type=security_type)
 
     if year or month or day:  # If date filter is provided
         filtered = []

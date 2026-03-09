@@ -3,13 +3,12 @@ name: Api Monitoring
 on:
   schedule:
     - cron: '0 * * * *'
-  workflow_dispatch:
-    push:
+  push:
       branches:
         - main
         - issues/fix
 
-    pull_request:
+  pull_request:
       branches:
         - issues/fix
 

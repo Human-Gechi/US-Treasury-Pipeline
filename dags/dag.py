@@ -22,7 +22,7 @@ default_args = {
     dag_id="Securities_Rate",
     default_args=default_args,
     start_date=pendulum.datetime(2026, 2, 2),
-    schedule="0 0 9 * *",
+    schedule="0 0 10 * *",
 )
 def securities_rate():
     @task(task_id="run_data_task")

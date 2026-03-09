@@ -8,7 +8,7 @@ from log import streamlit_logger
 
 load_dotenv()
 
-BASE_API_URL = "https://us-treasury-pipeline.onrender.com/"  # Deployed url on render
+BASE_API_URL = "http://127.0.0.1:8000/"  # Deployed url on render
 API_KEY = st.secrets["API_KEY"]
 HEADERS = {"API_KEY": API_KEY}
 
@@ -44,7 +44,7 @@ def request_json(url, params=None, timeout=50):
 @st.cache_data  # Caching data so data can be stored in cache doesn't affect the API, Database causing connection issues
 def fetch_security_types():
     payload = request_json(f"{BASE_API_URL}/records/types")  # Call the API endpoint
-    print(payload)
+    
     if not payload:
         return []
     return payload.get("Security_type_desc", []) if isinstance(payload, dict) else []
@@ -60,8 +60,6 @@ def fetch_records_for_type(security_type: str):
 
     if not payload:
         return []
-
-    print(type(payload))
 
     if isinstance(payload, list):
         return payload
@@ -86,7 +84,7 @@ def fetch_latest_records():
 
 def total_count():
     """Function to get the total count of records and display it in a metric card."""
-    payload = request_json(f"{BASE_API_URL}/records/record_count")
+    payload = request_json(f"{BASE_API_URL}/records/record-count")
     if not payload:  # If no payload
         return  # Return nothing
 

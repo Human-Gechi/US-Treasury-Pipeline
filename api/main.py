@@ -75,14 +75,14 @@ app.add_middleware(
 @app.get("/")  # Root endpoint
 async def root():
     """Root endpoint"""
-    return {"message": "Average Rate US Treasury API is running"}  # Message on display
+    return  "Average Rate US Treasury API is running"  # Message on display
 
 
 @app.get("/health")
 async def health_check():
     """API health endpoint"""
 
-    return {"status": "healthy"}
+    return "healthy"
 
 
 @app.get("/records", dependencies=[Depends(validate_key)])  # /records endpoint wit API key dependency
@@ -97,7 +97,7 @@ async def all_records(
     skip_amount = (page - 1) * size  # Offset calculation
     if all_records:  # Get all records if all_records is true
         records = await service.fetch_all_records(Session=db_connection, limit=1000, offset=100)
-        return {"Record": records}
+        return records
     else:
         records = await service.fetch_all_records(
             Session=db_connection, limit=size, offset=skip_amount
@@ -112,14 +112,14 @@ async def all_records(
 
 
 @app.get(
-    "/records/record_count", dependencies=[Depends(validate_key)]
+    "/records/record-count", dependencies=[Depends(validate_key)]
 )  # /records/record_count endpoint with API key dependency
 async def total_records(
     db_connection=Depends(service.get_db),  # DB Dependency
 ):
     """Fetch total record count."""
     total_count = await service.fetch_total_records(Session=db_connection)  # Fetch total count
-    result = {"Record_count": total_count}
+    result = {"Record_count": total_count} # Result to be displayed
     return result  # display result
 
 
@@ -136,7 +136,7 @@ async def get_records_by_security_types(
 ):
     record = await service.fetch_by_type(Session=db_connection)  # fetch by type
     result = {"Security_type_desc": record}  # result
-    return result  # display result
+    return result # display result
 
 
 @app.get("/records/by-date", dependencies=[Depends(validate_key)])  # /records/by-date endpoint with API key dependency
@@ -150,8 +150,8 @@ async def get_records_by_date(
     day: Optional[int] = Query(None, description="Filter date by day (1-31)"),
 ):
     """fetch records by date filters."""
-    record = await service.fetch_by_date(Session=db_connection, year=year, month=month, day=day)
-    return record  # display result
+    records = await service.fetch_by_date(Session=db_connection, year=year, month=month, day=day)
+    return records # display result
 
 
 @app.get(
@@ -166,7 +166,7 @@ async def get_records_by_security_type(
 ):
     """Fetch records by security type."""
     records = await service.fetch_by_security_type(Session=db_connection, security_type=security_type)
-    return records  # display result
+    return records # display result
 
 
 @app.get(
@@ -198,4 +198,4 @@ async def get_records_by_security_type_and_date(
                 ):
                     filtered.append(record)  # Append matching record to filtered list
         records = filtered  # Record to be displayed
-    return {"Record": records}  # Display result
+    return records  # Display result

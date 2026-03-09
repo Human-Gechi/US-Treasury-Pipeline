@@ -82,9 +82,7 @@ class TestDataModule:
         records.clear()
 
     @pytest.mark.asyncio
-    async def test_fetch_by_date(
-        self, session: AsyncSession, date_params: tuple[int, int, int]
-    ) -> None:
+    async def test_fetch_by_date(self, session: AsyncSession, date_params: tuple[int, int, int]) -> None:
         """Test fetching records by date from the database."""
         records = await service.fetch_by_date(
             session,

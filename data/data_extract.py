@@ -87,9 +87,7 @@ async def api_insertion(
                 f"Leftover: {result['total_inserted']} inserted, {result['total_skipped']} skipped (attempted {len(records)})"
             )
 
-        api_logger.info(
-            f"FINISHED. Total inserted: {total_inserted}, Total skipped: {total_skipped}"
-        )
+        api_logger.info(f"FINISHED. Total inserted: {total_inserted}, Total skipped: {total_skipped}")
 
     except Exception as e:
         api_logger.exception(f"Unexpected failure: {e}")

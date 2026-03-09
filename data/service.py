@@ -46,20 +46,16 @@ async def fetch_all_records(Session: AsyncSession, limit: int, offset: int) -> l
         raise e
 
 
-async def fetch_latest_record(Session: AsyncSession) -> list[dict]:
-    """Fetch the latest record from the database.
-
-    Parameters:
-        Session: The async database session to use for the query.
-    """
+async def fetch_latest_record(Session: AsyncSession):
+    """Fetch the latest record from the database as a list of plain dicts."""
     try:
         query = select(Records).order_by(Records.record_date.desc()).limit(1)
         result = await Session.execute(query)
-        rows = result.mappings().all()
-        return [dict(row) for row in rows]
+        row = result.scalars().first()  # ORM object or None
+        return row
     except Exception as e:
         db_logger.error(f"Error fetching records: {e}")
-        raise e
+        raise
 
 
 async def fetch_total_records(Session: AsyncSession) -> int:
@@ -87,9 +83,10 @@ async def fetch_by_security_type(Session: AsyncSession, security_type: str) -> l
     try:
         security_type = security_type.strip()  # Strip any leading or trailing whitespace
         query = select(Records).where(Records.security_type_desc == security_type)
-        rows = await Session.execute(query)
-        result = rows.mappings().all()
-        return [dict(row) for row in result]
+        result = await Session.execute(query)
+        rows = result.scalars().all()
+
+        return [{col.name: getattr(row, col.name) for col in Records.__table__.columns} for row in rows]
     except Exception as e:
         db_logger.error(f"Error fetching records: {e}")
         raise e
@@ -112,24 +109,18 @@ async def fetch_by_date(Session: AsyncSession, year=None, month=None, day=None):
     params = {}  # List to hold parameters
 
     if year is not None:  # If year is in the function
-        query_parts.append(
-            " AND EXTRACT(YEAR FROM record_date) = :year"
-        )  # Append year to query parts
+        query_parts.append(" AND EXTRACT(YEAR FROM record_date) = :year")  # Append year to query parts
         params["year"] = int(year)  # Append year to params
 
     if month is not None:  # If month is not None
-        query_parts.append(
-            " AND EXTRACT(MONTH FROM record_date) = :month"
-        )  # Append month to query parts
+        query_parts.append(" AND EXTRACT(MONTH FROM record_date) = :month")  # Append month to query parts
         params["month"] = int(month)  # Append month to params
 
     if day is not None:
         query_parts.append(" AND EXTRACT(DAY FROM record_date) = :day")  # ``
         params["day"] = int(day)  # Append day to params
 
-    query_parts.append(
-        "ORDER BY record_date DESC"
-    )  # Append order by to the query parts on the record date
+    query_parts.append("ORDER BY record_date DESC")  # Append order by to the query parts on the record date
 
     query = " ".join(query_parts)  # . join the query part using space to form the final query
     try:

@@ -42,9 +42,7 @@ async def run_monitor_cycle():
         message = "Connection Error: API might be sleeping or down"
         health_status = False
 
-    latency = round(
-        (time.time() - start_time) * 1000, 2
-    )  # Calculating latency/Start to finish times in milliseconds
+    latency = round((time.time() - start_time) * 1000, 2)  # Calculating latency/Start to finish times in milliseconds
 
     await connect_to_db()
     from data.db_conn import db_engine
@@ -67,9 +65,7 @@ async def run_monitor_cycle():
     except Exception as e:
         api_logger.error(f"Error inserting into database: {e}")  # Error in db insertion
     else:
-        api_logger.info(
-            f"[{status}] {message} - Recorded ({latency:.2f}ms)"
-        )  # Print Status message and time taken
+        api_logger.info(f"[{status}] {message} - Recorded ({latency:.2f}ms)")  # Print Status message and time taken
     finally:
         await close_db_pool()  # Close the database connection
 

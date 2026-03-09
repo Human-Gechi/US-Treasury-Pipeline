@@ -73,7 +73,7 @@ async def fetch_total_records(Session: AsyncSession) -> int:
         raise e
 
 
-async def fetch_by_security_type(Session: AsyncSession, security_type: str) -> dict:
+async def fetch_by_security_type(Session: AsyncSession, security_type: str) -> list[dict]:
     """Fetch records by security type.
 
     Parameters:

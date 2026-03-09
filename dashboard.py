@@ -69,10 +69,7 @@ def fetch_latest_records():
     """Function to get the latest record for each security type."""
     payload = request_json(f"{BASE_API_URL}/records/latest")
     if not payload:
-        return None
-
-    if not isinstance(payload, dict):
-        return pd.DataFrame()
+        return pd.DataFrame()  # Return empty dataframe if no payload
 
     if isinstance(payload, dict):
         return pd.DataFrame([payload])  # wrap single record
@@ -211,7 +208,7 @@ def line_graph_filtered():
     ).sort_index()
 
     st.subheader("% Securities Average Interest Rate Over Time")  # Subheader for line graph
-    st.line_chart(df_pivot, width="stretch", height=400)
+    st.line_chart(df_pivot, width=700, height=400)
 
 
 def render_dashboard():

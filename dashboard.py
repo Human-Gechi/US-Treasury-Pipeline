@@ -8,7 +8,7 @@ from log import streamlit_logger
 
 load_dotenv()
 
-BASE_API_URL = "https://us-treasury-pipeline.onrender.com/"  # Deployed url on render
+BASE_API_URL = "https://us-treasury-pipeline.onrender.com"  # Deployed url on render
 API_KEY = st.secrets["API_KEY"]
 HEADERS = {"API_KEY": API_KEY}
 

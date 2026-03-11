@@ -11,7 +11,6 @@ from sqlalchemy import insert
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.models import APIHealthCheck
-from log import api_logger
 
 
 async def run_monitor_cycle():
@@ -35,7 +34,7 @@ async def run_monitor_cycle():
         health_status = status == 200  # Setting status = True if condition is fulfilled
 
     except requests.exceptions.RequestException as e:
-        api_logger.error(f"Request failed: {e}")
+        print(f"Request failed: {e}")
 
         # If no specific status code is returned as sometimes render API goes to sleep
         status = 0
@@ -48,8 +47,7 @@ async def run_monitor_cycle():
     from data.db_conn import db_engine
 
     if db_engine is None:
-        api_logger.error("No connection made to the database.")
-        return "No connection made to the database."
+        print("❌No connection made to the database.")
     try:
         async with db_engine.begin() as conn:
             await conn.execute(
@@ -61,11 +59,11 @@ async def run_monitor_cycle():
                     is_healthy=health_status,
                 )
             )
-            api_logger.info(f"[{status}] {message} - Recorded ({latency:.2f}ms)")
+            print(f"[{status}] {message} - Recorded ({latency:.2f}ms)")
     except Exception as e:
-        api_logger.error(f"Error inserting into database: {e}")  # Error in db insertion
+        print(f"Error inserting into database: {e}")  # Error in db insertion
     else:
-        api_logger.info(f"[{status}] {message} - Recorded ({latency:.2f}ms)")  # Print Status message and time taken
+        print(f"[{status}] {message} - Recorded ({latency:.2f}ms)")  # Print Status message and time taken
     finally:
         await close_db_pool()  # Close the database connection
 

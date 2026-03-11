@@ -91,3 +91,4 @@ async def api_insertion(
 
     except Exception as e:
         api_logger.exception(f"Unexpected failure: {e}")
+        raise

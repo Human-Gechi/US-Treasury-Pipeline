@@ -112,6 +112,7 @@ def display_latest():
         latest.rename_axis("field").reset_index(name="value")  # index name  # two columns: field{Key}, value
     )
     st.dataframe(vertical_df, width="stretch", hide_index=True)
+    streamlit_logger.info("Displayed LATEST Record sucessfully")
 
 
 def card_display():

@@ -19,7 +19,7 @@ async def create_tables():
 
         from data.db_conn import db_engine
 
-        db_logger.info("Database pool created for table creation.")
+        print("Database pool created for table creation.")
 
         if db_engine is None:
             raise Exception("db_engine not initialized")
@@ -37,9 +37,9 @@ async def create_tables():
             )  # Create unique index to prevent duplicate records
             event.listen(APIHealthCheck.__table__, "after_create", index)
 
-        db_logger.info("Table created successfully")
+        print("Table created successfully")
     except Exception as e:
-        db_logger.error(f"Table was not created: {e}")
+        print(f"Table was not created: {e}")
     finally:
         await close_db_pool()
 

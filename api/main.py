@@ -74,7 +74,7 @@ app.add_middleware(
 @app.get("/")  # Root endpoint
 async def root():
     """Root endpoint"""
-    return  "Average Rate US Treasury API is running"  # Message on display
+    return "Average Rate US Treasury API is running"  # Message on display
 
 
 @app.get("/health")
@@ -118,7 +118,7 @@ async def total_records(
 ):
     """Fetch total record count."""
     total_count = await service.fetch_total_records(Session=db_connection)  # Fetch total count
-    result = {"Record_count": total_count} # Result to be displayed
+    result = {"Record_count": total_count}  # Result to be displayed
     return result  # display result
 
 
@@ -135,7 +135,7 @@ async def get_records_by_security_types(
 ):
     record = await service.fetch_by_type(Session=db_connection)  # fetch by type
     result = {"Security_type_desc": record}  # result
-    return result # display result
+    return result  # display result
 
 
 @app.get("/records/by-date", dependencies=[Depends(validate_key)])  # /records/by-date endpoint with API key dependency
@@ -150,7 +150,7 @@ async def get_records_by_date(
 ):
     """fetch records by date filters."""
     records = await service.fetch_by_date(Session=db_connection, year=year, month=month, day=day)
-    return records # display result
+    return records  # display result
 
 
 @app.get(
@@ -165,7 +165,7 @@ async def get_records_by_security_type(
 ):
     """Fetch records by security type."""
     records = await service.fetch_by_security_type(Session=db_connection, security_type=security_type)
-    return records # display result
+    return records  # display result
 
 
 @app.get(

@@ -15,12 +15,14 @@ exclude = [
   "__pycache__",
   ".dockerignore",
   "docker-compose.yaml",
+  "config",
+  "logs"
 
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.2",
+    "ruff>=0.15.5",
 ]
 
 [tool.ruff.format]

@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
-    async_sessionmaker,
+    async_sessionmaker
 )
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -148,6 +148,7 @@ async def insert_data(rows, batch_size=1000):
         db_logger.error(f"Exception type: {type(e)}")
 
     db_logger.info(f"Final results: {total_inserted} inserted, {total_skipped} skipped due to conflicts")
+    return {"total_inserted": total_inserted, "total_skipped": total_skipped}  # ← ADD THIS
 
 
 # Call the functions to create tables and connect to db

@@ -61,8 +61,8 @@ x-airflow-common:
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'False'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: 'http://airflow-apiserver:8080/execution/'
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
@@ -80,6 +80,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
+    - ${AIRFLOW_PROJ_DIR:-.}/log.py:/opt/airflow/log.py
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -119,18 +120,25 @@ services:
     restart: always
 
   api:
-    build: .
+    build:
+      context: .
+      args:
+        AIRFLOW_UID: ${AIRFLOW_UID:-50000}
     env_file:
       - ${ENV_FILE_PATH:-.env}
     environment:
-      API_KEY: ${API_KEY}
-      DATABASE_URL: ${DB_URL}
+      - LOG_DIR=/app/logs
+      - API_KEY=${API_KEY}
+      - DATABASE_URL=${DB_URL}
     ports:
-      - "8000:8000"
+      - "8001:8001"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}/api:/app/api
       - ${AIRFLOW_PROJ_DIR:-.}/data:/app/data
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+      - ${AIRFLOW_PROJ_DIR:-.}/log.py:/app/log.py
+      - ${AIRFLOW_PROJ_DIR:-.}/logs:/app/logs
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8001 --reload
+    user: "${AIRFLOW_UID:-50000}:0"
     depends_on:
       postgres:
         condition: service_healthy
@@ -146,8 +154,8 @@ services:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/version"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 30s
+      retries: 10
+      start_period: 90s
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -157,6 +165,9 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    environment:
+      <<: *airflow-common-env
+      LOG_DIR: /opt/airflow/logs
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s
@@ -175,8 +186,8 @@ services:
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
       interval: 30s
-      timeout: 10s
-      retries: 5
+      timeout: 30s
+      retries: 10
       start_period: 30s
     restart: always
     depends_on:
@@ -201,6 +212,7 @@ services:
       # Required to handle warm shutdown of the celery workers properly
       # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
       DUMB_INIT_SETSID: "0"
+      LOG_DIR: /opt/airflow/logs
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -215,8 +227,8 @@ services:
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
       interval: 30s
-      timeout: 10s
-      retries: 5
+      timeout: 30s
+      retries: 10
       start_period: 30s
     restart: always
     depends_on:

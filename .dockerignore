@@ -1,5 +1,4 @@
 venv/
-logs/
 .git/
 .github/
 __pycache__/
@@ -10,4 +9,12 @@ monitor/
 dashboard.py
 *.log
 .streamlit/
-.ignorecontents
+README.md
+pytest.ini
+pyproject.toml
+.ruff_cache
+image.png
+.gitignore
+data/__pycache__
+logs/__pycache__
+api/__pycache__

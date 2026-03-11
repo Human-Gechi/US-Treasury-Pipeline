@@ -1,7 +1,9 @@
 import logging
 import os
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+parent_dir = os.getenv("LOG_DIR", "/app/logs")
+
+os.makedirs(parent_dir, exist_ok=True)
 
 db_log_file_path = os.path.join(parent_dir, "db_logs.log")
 api_log_file_path = os.path.join(parent_dir, "api_log.log")
@@ -12,13 +14,11 @@ LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 db_logger = logging.getLogger("db_logger")
 db_logger.setLevel(logging.DEBUG)
 
-
 db_handler = logging.FileHandler(db_log_file_path, mode="a")
 db_handler.setLevel(logging.DEBUG)
 db_handler.setFormatter(logging.Formatter(LOG_FORMAT))
 
 db_logger.addHandler(db_handler)
-
 
 api_logger = logging.getLogger("api_logger")
 api_logger.setLevel(logging.DEBUG)

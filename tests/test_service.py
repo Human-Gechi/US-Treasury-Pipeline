@@ -18,7 +18,9 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     try:
         yield db_session
     finally:
-        await gen.aclose()  # Closes one AsyncGenerator instance, ensures database cleanup of the database session after each test.
+        await (
+            gen.aclose()
+        )  # Closes one AsyncGenerator instance, ensures database cleanup of the database session after each test.
 
 
 @pytest.fixture(scope="session", autouse=True)

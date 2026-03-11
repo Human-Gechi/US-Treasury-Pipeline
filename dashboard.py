@@ -78,6 +78,7 @@ def fetch_latest_records():
 
     return pd.DataFrame()
 
+
 def total_count():
     """Function to get the total count of records and display it in a metric card."""
     payload = request_json(f"{BASE_API_URL}/records/record-count")
@@ -98,7 +99,7 @@ def total_count():
 
 
 def display_latest():
-    """ Function to display latest record."""
+    """Function to display latest record."""
     st.subheader("Latest Record")
     df = fetch_latest_records()
 

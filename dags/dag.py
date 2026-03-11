@@ -1,9 +1,6 @@
 # Importing necessary libraries
-import asyncio
-import datetime
-import sys
-
 import pendulum
+from datetime import timedelta
 
 from airflow.sdk import dag, task
 
@@ -14,7 +11,7 @@ default_args = {
     "email_on_failure": True,
     "email_on_retry": True,
     "retries": 3,
-    "retry_delay": datetime.timedelta(minutes=3),
+    "retry_delay": timedelta(minutes=3),
 }
 
 
@@ -27,6 +24,8 @@ default_args = {
 def securities_rate():
     @task(task_id="run_data_task")
     def run_data():
+        import asyncio
+        import sys
 
         project_root = "/opt/airflow/"
 
@@ -46,4 +45,4 @@ def securities_rate():
     run_data()
 
 
-securities_rate()
+dag_instance = securities_rate()

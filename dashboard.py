@@ -50,7 +50,7 @@ def fetch_security_types():
     return payload.get("Security_type_desc", []) if isinstance(payload, dict) else []
 
 
-# @st.cache_data  # Caching data so data can be stored in cache doesn't affect the API, Database causing connection issues
+@st.cache_data  # Caching data so data can be stored in cache doesn't affect the API, Database causing connection issues
 def fetch_records_for_type(security_type: str):
     """Function to fetch records for a particular security type."""
     payload = request_json(

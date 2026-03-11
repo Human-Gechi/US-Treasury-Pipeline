@@ -26,6 +26,7 @@ The US Treasury Pipeline is a full-stack application designed to ingest Treasury
 * **Visualization:** Streamlit
 * **Infrastructure:** Docker
 * **Data Storage:** Postgres Database hosted on aiven
+* **Orchestration:** Airflow
 
 ---
 
@@ -55,38 +56,44 @@ US-Treasury-Pipeline/
 └── README.md               # Project documentation
 └── pytest.ini
 └── docker-compose.yaml     #Airflow dag configuration
-└── pyproject.toml          
+└── pyproject.toml
 ```
 
 ---
 
 ## 🏗️ Architecture Overview
 
-### 1. **Data Extraction & Pipeline**
-- Fetches Treasury data from public sources (US Department of Treasury APIs)
+### 1. **Data Extraction & Pipeline [dag](./dags/)**
+- Fetches Treasury data from public sources (US Department of Treasury API) which gets updated monthly
 - Handles authentication, rate limiting, and error handling
 - Validates data quality and performs deduplication
-- Stores processed data in `Data/` folder
+- Stores processed data from `data/` folder
 
-### 2. **FastAPI Backend (Api/)**
+### 2. **FastAPI Backend [api folder](./api/)**
 - RESTful API endpoints serving Treasury data
 - Data models with Pydantic validation
 - CORS-enabled for cross-origin requests
 - Deployed on Render cloud platform
 - Handles authentication and request validation
 
-### 3. **Streamlit Dashboard (dashboard.py)**
+### 3. **Streamlit Dashboard [dashboard.py](./dashboard.py)**
 - Consumes data from FastAPI backend via HTTP requests
 - Interactive web interface for exploring Treasury metrics
 - Real-time data visualization and trend analysis
 - Responsive UI with filters and date range selectors
 
-### 4. **Data Storage (Data/)**
+### 4. **Data Storage [data folder](./data/)**
 - Persistent storage of raw and processed datasets into the database
-- Batch data uploads(200 records per insertion) for 4861 records
+- Batch data uploads(1000 records per insertion) for 4891 records as the the time of writing this readme.
 - Organized by data type and time period
 
-### STREAMLIT DASHBOARD URL :https://us-treasury-pipeline-rijzjnbzowvw8ydra7f5uq.streamlit.app/
+### 5. **Api Montoring [monitor folder](./monitor/)**
+- Handles monitoring logging api monitor records to the db after an hourly github action run
+
+### 6. **Tests [tests folder](./tests/)**
+- Handles tests on scripts to make sure they work as expected
+
+### STREAMLIT DASHBOARD URL :https://us-treasury-pipeline-3acygp9psl2tyctwncvumw.streamlit.app/
 ---
 
 ## 🚀 Getting Started
@@ -95,6 +102,7 @@ US-Treasury-Pipeline/
 - Python 3.9+
 - Docker & Docker Compose
 - Git
+- Airflow 3.1.7
 - Render account (for API deployment)
 
 ### Local Installation & Development
@@ -117,7 +125,7 @@ US-Treasury-Pipeline/
    API_KEY= ***
 
    # DATABASE CREDENTIALS
-   DATABASE_URL = *****
+   DB_URL = *****
    ```
 
 4. **Run Locally with Docker**
@@ -187,6 +195,9 @@ The Streamlit dashboard automatically connects to the Render-hosted API in produ
 - **Historical Trend Analysis**  -> Graph depicting securities trends overtime
 - **Record count** -> Total count, individual security type count
 - **Latest Record**
+
+**DAG RUN**
+![Airflow Sucess Logs](image.png)
 ---
 
 
@@ -195,7 +206,7 @@ The Streamlit dashboard automatically connects to the Render-hosted API in produ
 - Clear browser cache and restart Streamlit
 
 ### Data Not Appearing
-- Ensure data files exist in `Data/` folder
+- Ensure data files exist in `data/` folder
 - Verify API credentials in environment variables
 - Check API logs for data fetch errors
 
@@ -242,7 +253,7 @@ The pipeline processes Treasury metrics including:
    - Click "New" -> "Web Service"
    - Connect GitHub repository
    - Set Build Command: `pip install -r requirements.txt`
-   - Set Start Command: `uvicorn Api.main:app --host 0.0.0.0 --port $PORT`
+   - Set Start Command: `uvicorn pi.main:app --host 0.0.0.0 --port $PORT`
 
 2. **Configure Environment Variables**
    - Add all variables from `.env` in Render dashboard

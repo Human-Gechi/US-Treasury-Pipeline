@@ -7,7 +7,8 @@ docker-compose.yml
 streamlit_log.log
 logs/
 *.log
-config
+config/
 *.ruff_cache
 *.streamlit
 venv
+plugins/

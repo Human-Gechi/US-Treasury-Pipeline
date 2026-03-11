@@ -1,7 +1,7 @@
 import logging
 import os
 
-parent_dir = "/opt/airflow/logs"
+parent_dir = os.getenv("LOG_DIR", "/app/logs")
 
 os.makedirs(parent_dir, exist_ok=True)
 
